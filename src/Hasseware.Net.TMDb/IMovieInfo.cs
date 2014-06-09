@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -72,6 +73,11 @@ namespace System.Net.TMDb
 		/// </summary>
 		Task<SeriesList> SearchAsync(string query, string language, DateTime? firstAirDate, int page, CancellationToken cancellationToken);
 
+        /// <summary>
+        /// Discover TV shows by different types of data like average rating, number of votes, genres, the network they aired on and air dates.
+        /// </summary>
+        Task<SeriesList> DiscoverAsync(string language, int? year, DateTime? minimumDate, DateTime? maximumDate, int? voteCount, decimal? voteAverage, string genres, string networks, int page, CancellationToken cancellationToken);
+
 		/// <summary>
 		/// Get the primary information about a TV series by id.
 		/// </summary>
@@ -127,6 +133,11 @@ namespace System.Net.TMDb
 		/// Get the list of top rated TV shows. By default, this list will only include TV shows that have 2 or more votes. This list refreshes every day.
 		/// </summary>
 		Task<SeriesList> GetTopRatedAsync(string language, int page, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// This method is used to retrieve the basic information about a TV network. You can use this ID to search for TV shows with the discover. 
+        /// </summary>
+        Task<string> GetNetworkAsync(int id, CancellationToken cancellationToken);
 	}
 
 	public interface IGenreInfo
@@ -174,6 +185,32 @@ namespace System.Net.TMDb
 
 		Task<PersonList> SearchAsync(string query, bool includeAdult, int page, CancellationToken cancellationToken);
 	}
+
+    public interface IListInfo
+    {
+        Task<Lists> GetAsync(string id, CancellationToken cancellationToken);
+
+        Task<bool> ContainsMovieAsync(string id, int movieId, CancellationToken cancellationToken);
+
+        Task<string> CreateAsync(string session, string name, string description, string language, CancellationToken cancellationToken);
+
+        Task<bool> InsertMediaAsync(string session, string id, string mediaId, CancellationToken cancellationToken);
+
+        Task<bool> RemoveMediaAsync(string session, string id, string mediaId, CancellationToken cancellationToken);
+
+        Task<bool> ClearAsync(string session, string id, CancellationToken cancellationToken);
+
+        Task<bool> DeleteAsync(string session, string id, CancellationToken cancellationToken);
+    }
+
+    public interface ISystemInfo
+	{
+        Task<dynamic> GetCertificationsAsync(CancellationToken cancellationToken);
+
+        Task<dynamic> GetConfigurationAsync(CancellationToken cancellationToken);
+
+        Task<dynamic> GetTimezonesAsync(CancellationToken cancellationToken);
+    }
 
 	[Flags]
 	public enum DataInfoType

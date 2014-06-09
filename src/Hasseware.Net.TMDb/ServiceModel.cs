@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace System.Net.TMDb
@@ -357,7 +358,7 @@ namespace System.Net.TMDb
 		public short Width { get; set; }
 
 		[DataMember(Name = "height")]
-        public short Height { get; set; }
+		public short Height { get; set; }
 
 		[DataMember(Name = "iso_639_1")]
 		public string LanguageCode { get; set; }
@@ -673,7 +674,7 @@ namespace System.Net.TMDb
 		public string BirthDay { get; set; }
 
 		[DataMember(Name = "deathday")]
-        public string DeathDay { get; set; }
+		public string DeathDay { get; set; }
 
 		[DataMember(Name = "homepage")]
 		public string HomePage { get; set; }
@@ -793,6 +794,37 @@ namespace System.Net.TMDb
 		public string Url { get; set; }
 	}
 
+    [DataContract]
+	public class Lists
+    {
+        [DataMember(Name = "id")]
+        public string Id { get; set; }
+
+        [DataMember(Name = "name")]
+        public string Name { get; set; }
+
+        [DataMember(Name = "description")]
+        public string Description { get; set; }
+
+        [DataMember(Name = "poster_path")]
+        public string Poster { get; set; }
+
+        [DataMember(Name = "created_by")]
+        public string Creator { get; set; }
+
+        [DataMember(Name = "iso_639_1")]
+        public string LanguageCode { get; set; }
+
+        [DataMember(Name = "posters")]
+        public IEnumerable<Movie> Items { get; set; }
+
+        [DataMember(Name = "favorite_count")]
+        public int FavoriteCount { get; set; }
+
+        [DataMember(Name = "item_count")]
+        public int ItemCount { get; set; }
+    }
+
 	[DataContract]
 	public abstract class PagedResult<T>
 	{
@@ -808,7 +840,26 @@ namespace System.Net.TMDb
 		[DataMember(Name = "total_results")]
 		public int TotalCount { get; set; }
 	}
-	
+
+	[DataContract]
+	internal class AuthenticationResult
+	{
+		[DataMember(Name = "request_token")]
+		public string Token { get; set; }
+
+		[DataMember(Name = "session_id")]
+		public string Session { get; set; }
+
+		[DataMember(Name = "guest_session_id")]
+		public string Guest { get; set; }
+		
+		[DataMember(Name = "expires_at")]
+		public DateTime? ExpiresAt { get; set; }
+
+		[DataMember(Name = "success")]
+		public bool Success  { get; set; }
+	}
+
 	[DataContract]
 	internal class Status
 	{
