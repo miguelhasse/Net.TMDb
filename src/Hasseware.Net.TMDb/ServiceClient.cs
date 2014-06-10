@@ -83,6 +83,8 @@ namespace System.Net.TMDb
 
 		#endregion
 
+		#region Request Handling Methods
+
 		private Task<HttpResponseMessage> GetAsync(string cmd, IDictionary<string, object> parameters, CancellationToken cancellationToken)
 		{
 			var client = CreateHttpClient();
@@ -151,7 +153,8 @@ namespace System.Net.TMDb
 				AllowAutoRedirect = false,
 				PreAuthenticate = true,
 				UseDefaultCredentials = true,
-				UseCookies = false
+				UseCookies = false,
+				AutomaticDecompression =  DecompressionMethods.GZip
 			});
 			client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 			return client;
@@ -183,6 +186,8 @@ namespace System.Net.TMDb
 			else if (t == typeof(Decimal)) return ((Decimal)value).ToString(CultureInfo.InvariantCulture);
 			else return value.ToString();
 		}
+
+		#endregion
 
 		#region Nested Classes
 
