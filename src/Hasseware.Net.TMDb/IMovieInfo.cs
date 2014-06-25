@@ -57,6 +57,16 @@ namespace System.Net.TMDb
 		/// </summary>
 		Task<MovieList> GetTopRatedAsync(string language, int page, CancellationToken cancellationToken);
 
+        /// <summary>
+        /// Get the list of now playing movies. By default, this list will only include movies that have 10 or more votes. This list refreshes every day.
+        /// </summary>
+	    Task<MovieList> GetNowPlayingAsync(string language, int page, CancellationToken cancellationToken);
+
+	    /// <summary>
+	    /// Get the list of upcoming movies. By default, this list will only include movies that have 10 or more votes. This list refreshes every day.
+	    /// </summary>
+	    Task<MovieList> GetUpcomingAsync(string language, int page, CancellationToken cancellationToken);
+
 		Task<IEnumerable<AlternativeTitle>> GetAlternativeTitlesAsync(int id, string language, CancellationToken cancellationToken);
 
 		Task<IEnumerable<Keyword>> GetKeywordsAsync(int id, CancellationToken cancellationToken);
