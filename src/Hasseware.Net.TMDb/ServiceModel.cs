@@ -4,48 +4,31 @@ using System.Runtime.Serialization;
 
 namespace System.Net.TMDb
 {
-	[DataContract]
-	public class Changes
-	{
-		[DataMember(Name = "changes")]
-		public IEnumerable<Change> Results { get; set; }
-	}
-	
-	[DataContract]
-	public class Change
-	{
-		[DataMember(Name = "key")]
-		public string Key { get; set; }
+    //[DataContract]
+    //public class ChangedItem
+    //{
+    //    [DataMember(Name = "id")]
+    //    public string Id { get; set; }
 
-		[DataMember(Name = "items")]
-		public IEnumerable<ChangedItem> Items { get; set; }
+    //    [DataMember(Name = "action")]
+    //    public string Action { get; set; }
+
+    //    [DataMember(Name = "time")]
+    //    public string Time { get; set; }
+
+    //    [DataMember(Name = "value")]
+    //    public object Value { get; set; }
+		
+    //    [DataMember(Name = "iso_639_1")]
+    //    public string LanguageCode { get; set; }
+    //}
+
+    public class ChangeList : PagedResult<ChangedItem>
+	{
 	}
 	
 	[DataContract]
 	public class ChangedItem
-	{
-		[DataMember(Name = "id")]
-		public string Id { get; set; }
-
-		[DataMember(Name = "action")]
-		public string Action { get; set; }
-
-		[DataMember(Name = "time")]
-		public string Time { get; set; }
-
-		[DataMember(Name = "value")]
-		public object Value { get; set; }
-		
-		[DataMember(Name = "iso_639_1")]
-		public string LanguageCode { get; set; }
-	}
-
-	public class ChangeList : PagedResult<ChangedListItem>
-	{
-	}
-	
-	[DataContract]
-	public class ChangedListItem
 	{
 		[DataMember(Name = "id")]
 		public int Id { get; set; }
@@ -55,7 +38,7 @@ namespace System.Net.TMDb
 	}
 	
 	[DataContract]
-	public class Certifications
+	internal class Certifications
 	{
 		[DataMember(Name = "certifications")]
 		public IEnumerable<Certification> Results { get; set; }
@@ -142,6 +125,23 @@ namespace System.Net.TMDb
 		[DataMember(Name = "name")]
 		public string Name { get; set; }
 	}
+
+    [DataContract]
+    internal class Jobs
+    {
+        [DataMember(Name = "jobs")]
+        public IEnumerable<Job> Results { get; set; }
+    }
+
+    [DataContract]
+    public class Job
+    {
+        [DataMember(Name = "department")]
+        public string Department { get; set; }
+
+        [DataMember(Name = "job_list")]
+        public IEnumerable<string> Items { get; set; }
+    }
 
 	public class SeriesList : PagedResult<Series>
 	{
@@ -342,7 +342,7 @@ namespace System.Net.TMDb
 	}
 
 	[DataContract]
-	public class Genres
+	internal class Genres
 	{
 		[DataMember(Name = "genres")]
 		public IEnumerable<Genre> Results { get; set; }
