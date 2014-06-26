@@ -297,6 +297,20 @@ namespace System.Net.TMDb
 				return await Deserialize<MovieList>(response);
 			}
 
+            public async Task<MovieList> GetNowPlayingAsync(string language, int page, CancellationToken cancellationToken)
+            {
+                var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
+                var response = await client.GetAsync("movie/now_playing", parameters, cancellationToken).ConfigureAwait(false);
+                return await Deserialize<MovieList>(response);
+            }
+
+            public async Task<MovieList> GetUpcomingAsync(string language, int page, CancellationToken cancellationToken)
+            {
+                var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
+                var response = await client.GetAsync("movie/upcoming", parameters, cancellationToken).ConfigureAwait(false);
+                return await Deserialize<MovieList>(response);
+            }
+
 			public async Task<IEnumerable<AlternativeTitle>> GetAlternativeTitlesAsync(int id, string language, CancellationToken cancellationToken)
 			{
 				string cmd = String.Format("movie/{0}/alternative_titles", id);
