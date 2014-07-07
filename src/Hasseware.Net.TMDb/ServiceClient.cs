@@ -244,7 +244,7 @@ namespace System.Net.TMDb
 			{
 				string cmd = String.Format("movie/{0}", id);
 				var parameters = new Dictionary<string, object> { { "language", language } };
-				if (appendAll) parameters.Add("append_to_response","alternative_titles,images,credits,keywords,releases,videos,translations");
+                if (appendAll) parameters.Add("append_to_response", "alternative_titles,images,credits,keywords,releases,videos,translations,external_ids");
 
 				var response = await client.GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
 				return await Deserialize<Movie>(response);
@@ -406,7 +406,7 @@ namespace System.Net.TMDb
 			{
 				string cmd = String.Format("tv/{0}", id);
 				var parameters = new Dictionary<string, object> { { "language", language } };
-				if (appendAll) parameters.Add("append_to_response","images,credits,keywords,videos,translations");
+                if (appendAll) parameters.Add("append_to_response", "images,credits,keywords,videos,translations,external_ids");
 
 				var response = await client.GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
 				return await Deserialize<Series>(response);
@@ -416,7 +416,7 @@ namespace System.Net.TMDb
 			{
 				string cmd = String.Format("tv/{0}/season/{1}", id, season);
 				var parameters = new Dictionary<string, object> { { "language", language } };
-				if (appendAll) parameters.Add("append_to_response","images,credits,videos");
+                if (appendAll) parameters.Add("append_to_response", "images,credits,videos,external_ids");
 
 				var response = await client.GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
 				return await Deserialize<Season>(response);
@@ -426,7 +426,7 @@ namespace System.Net.TMDb
 			{
 				string cmd = String.Format("tv/{0}/season/{1}/episode/{2}", id, season, episode);
 				var parameters = new Dictionary<string, object> { { "language", language } };
-				if (appendAll) parameters.Add("append_to_response","images,credits,videos");
+                if (appendAll) parameters.Add("append_to_response", "images,credits,videos,external_ids");
 
 				var response = await client.GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
 				return await Deserialize<Episode>(response);
@@ -657,7 +657,7 @@ namespace System.Net.TMDb
 			{
 				string cmd = String.Format("person/{0}", id);
 				var parameters = new Dictionary<string, object>();
-				if (appendAll) parameters.Add("append_to_response","images");
+                if (appendAll) parameters.Add("append_to_response", "images,external_ids");
 
 				var response = await client.GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
 				return await Deserialize<Person>(response);

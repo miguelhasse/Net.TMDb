@@ -169,7 +169,7 @@ namespace System.Net.TMDb
 		public string Backdrop { get; internal set; }
 
 		[DataMember(Name = "origin_country")]
-		public IEnumerable<Country> Countries { get; internal set; }
+		public IEnumerable<string> Countries { get; internal set; }
 
 		[DataMember(Name = "episode_run_time")]
 		public IEnumerable<int> EpisodeRuntimes { get; internal set; }
@@ -223,17 +223,20 @@ namespace System.Net.TMDb
 		public Translations Translations { get; internal set; }
 
 		[DataMember(Name = "popularity")]
-		public double Popularity { get; internal set; }
+		public decimal Popularity { get; internal set; }
 
 		[DataMember(Name = "vote_average")]
-		public double VoteAverage { get; internal set; }
+		public decimal VoteAverage { get; internal set; }
 
 		[DataMember(Name = "vote_count")]
 		public int VoteCount { get; internal set; }
 
 		[DataMember(Name = "status")]
 		public string Status { get; internal set; }
-	}
+
+        [DataMember(Name = "external_ids")]
+        public ExternalIds External { get; internal set; }
+    }
 
 	[DataContract]
 	public class Season
@@ -267,6 +270,9 @@ namespace System.Net.TMDb
 
 		[DataMember(Name = "episodes")]
 		public IEnumerable<Episode> Episodes { get; internal set; }
+
+        [DataMember(Name = "external_ids")]
+        public ExternalIds External { get; internal set; }
 	}
 
 	[DataContract]
@@ -310,7 +316,10 @@ namespace System.Net.TMDb
 
 		[DataMember(Name = "vote_count")]
 		public int VoteCount { get; internal set; }
-	}
+
+        [DataMember(Name = "external_ids")]
+        public ExternalIds External { get; internal set; }
+    }
 
 	[DataContract]
 	public class Network
@@ -325,14 +334,14 @@ namespace System.Net.TMDb
 	[DataContract]
 	public class ExternalIds
 	{
-		[DataMember(Name = "id")]
-		public int Id { get; internal set; }
-
 		[DataMember(Name = "freebase_id")]
 		public string Freebase { get; internal set; }
 
 		[DataMember(Name = "freebase_mid")]
 		public string FreebaseMid { get; internal set; }
+
+        [DataMember(Name = "imdb_id")]
+        public string Imdb { get; internal set; }
 
 		[DataMember(Name = "tvdb_id")]
 		public int? Tvdb { get; internal set; }
@@ -364,10 +373,10 @@ namespace System.Net.TMDb
 		public string LanguageCode { get; internal set; }
 
 		[DataMember(Name = "aspect_ratio")]
-		public double AspectRatio { get; internal set; }
+		public decimal AspectRatio { get; internal set; }
 
 		[DataMember(Name = "vote_average")]
-		public double VoteAverage { get; internal set; }
+		public decimal VoteAverage { get; internal set; }
 
 		[DataMember(Name = "vote_count")]
 		public int VoteCount { get; internal set; }
@@ -465,16 +474,20 @@ namespace System.Net.TMDb
 		public Translations Translations { get; internal set; }
 		
 		[DataMember(Name = "popularity")]
-		public double Popularity { get; internal set; }
+		public decimal Popularity { get; internal set; }
 
 		[DataMember(Name = "vote_average")]
-		public double VoteAverage { get; internal set; }
+		public decimal VoteAverage { get; internal set; }
 
 		[DataMember(Name = "vote_count")]
 		public int VoteCount { get; internal set; }
 
 		[DataMember(Name = "status")]
 		public string Status { get; internal set; }
+
+        [DataMember(Name = "external_ids")]
+        public ExternalIds External { get; internal set; }
+
 	}
 
 	[DataContract]
@@ -690,7 +703,10 @@ namespace System.Net.TMDb
 		
 		[DataMember(Name = "images")]
 		public PersonImages Images { get; internal set; }
-	}
+
+        [DataMember(Name = "external_ids")]
+        public ExternalIds External { get; internal set; }
+    }
 
 	[DataContract]
 	public class PersonImages
