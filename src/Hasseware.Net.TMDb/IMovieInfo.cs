@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,12 +14,12 @@ namespace System.Net.TMDb
 		/// <summary>
 		/// Search for movies by title.
 		/// </summary>
-		Task<MovieList> SearchAsync(string query, string language, bool includeAdult, int page, CancellationToken cancellationToken);
+		Task<Movies> SearchAsync(string query, string language, bool includeAdult, int page, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Discover movies by different types of data like average rating, number of votes, genres and certifications. You can get a valid list of certifications from the /certifications method.
 		/// </summary>
-		Task<MovieList> DiscoverAsync(string language, bool includeAdult, int? year, DateTime? minimumDate, DateTime? maximumDate, int? voteCount, decimal? voteAverage, string genres, string companies, int page, CancellationToken cancellationToken);
+		Task<Movies> DiscoverAsync(string language, bool includeAdult, int? year, DateTime? minimumDate, DateTime? maximumDate, int? voteCount, decimal? voteAverage, string genres, string companies, int page, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Get the basic movie information for a specific movie id.
@@ -31,6 +30,16 @@ namespace System.Net.TMDb
 		/// Get the images (posters and backdrops) for a specific movie id.
 		/// </summary>
 		Task<Images> GetImagesAsync(int id, string language, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Get the reviews for a particular movie id.
+		/// </summary>
+		Task<Reviews> GetReviewsAsync(int id, string language, int page, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Get the lists that the movie belongs to.
+		/// </summary>
+		Task<Lists> GetListsAsync(int id, string language, int page, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Get the cast and crew information for a specific movie id.
@@ -45,75 +54,75 @@ namespace System.Net.TMDb
 		/// <summary>
 		/// Get the similar movies for a specific movie id.
 		/// </summary>
-		Task<MovieList> GetSimilarAsync(int id, string language, int page, CancellationToken cancellationToken);
+		Task<Movies> GetSimilarAsync(int id, string language, int page, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Get a list of rated movies for a specific guest session id.
-        /// </summary>
-        Task<MovieList> GetGuestRatedAsync(string session, string language, int page, CancellationToken cancellationToken);
+		/// <summary>
+		/// Get a list of rated movies for a specific guest session id.
+		/// </summary>
+		Task<Movies> GetGuestRatedAsync(string session, string language, int page, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Get the list of popular movies on The Movie Database. This list refreshes every day.
 		/// </summary>
-		Task<MovieList> GetPopularAsync(string language, int page, CancellationToken cancellationToken);
+		Task<Movies> GetPopularAsync(string language, int page, CancellationToken cancellationToken);
 
 		/// <summary>
-        /// Get the list of top rated movies. By default, this list will only include movies that have 10 or more votes. This list refreshes every day.
+		/// Get the list of top rated movies. By default, this list will only include movies that have 10 or more votes. This list refreshes every day.
 		/// </summary>
-		Task<MovieList> GetTopRatedAsync(string language, int page, CancellationToken cancellationToken);
+		Task<Movies> GetTopRatedAsync(string language, int page, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Get the list of movies playing in theatres. This list refreshes every day. The maximum number of items this list will include is 100.
-        /// </summary>
-	    Task<MovieList> GetNowPlayingAsync(string language, int page, CancellationToken cancellationToken);
+		/// <summary>
+		/// Get the list of movies playing in theatres. This list refreshes every day. The maximum number of items this list will include is 100.
+		/// </summary>
+		Task<Movies> GetNowPlayingAsync(string language, int page, CancellationToken cancellationToken);
 
-	    /// <summary>
-        /// Get the list of upcoming movies. This list refreshes every day. The maximum number of items this list will include is 100.
-	    /// </summary>
-	    Task<MovieList> GetUpcomingAsync(string language, int page, CancellationToken cancellationToken);
+		/// <summary>
+		/// Get the list of upcoming movies. This list refreshes every day. The maximum number of items this list will include is 100.
+		/// </summary>
+		Task<Movies> GetUpcomingAsync(string language, int page, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Get the alternative titles for a specific movie id.
-        /// </summary>
+		/// <summary>
+		/// Get the alternative titles for a specific movie id.
+		/// </summary>
 		Task<IEnumerable<AlternativeTitle>> GetAlternativeTitlesAsync(int id, string language, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Get the plot keywords for a specific movie id.
-        /// </summary>
+		/// <summary>
+		/// Get the plot keywords for a specific movie id.
+		/// </summary>
 		Task<IEnumerable<Keyword>> GetKeywordsAsync(int id, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Get the release date and certification information by country for a specific movie id.
-        /// </summary>
-		Task<IEnumerable<CountryRelease>> GetReleasesAsync(int id, CancellationToken cancellationToken);
+		/// <summary>
+		/// Get the release date and certification information by country for a specific movie id.
+		/// </summary>
+		Task<IEnumerable<Release>> GetReleasesAsync(int id, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Get the translations for a specific movie id.
-        /// </summary>
-        Task<IEnumerable<Translation>> GetTranslationsAsync(int id, CancellationToken cancellationToken);
+		/// <summary>
+		/// Get the translations for a specific movie id.
+		/// </summary>
+		Task<IEnumerable<Translation>> GetTranslationsAsync(int id, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Get a list of movie ids that have been edited. The maximum number of days that can be returned in a single request is 14.
-        /// </summary>
-        Task<ChangeList> GetChangesAsync(DateTime? minimumDate, DateTime? maximumDate, int page, CancellationToken cancellationToken);
-    }
+		/// <summary>
+		/// Get a list of movie ids that have been edited. The maximum number of days that can be returned in a single request is 14.
+		/// </summary>
+		Task<Changes> GetChangesAsync(DateTime? minimumDate, DateTime? maximumDate, int page, CancellationToken cancellationToken);
+	}
 
-	public interface ISeriesInfo
+	public interface IShowInfo
 	{
 		/// <summary>
 		/// Search for TV shows by title.
 		/// </summary>
-		Task<SeriesList> SearchAsync(string query, string language, DateTime? firstAirDate, int page, CancellationToken cancellationToken);
+		Task<Shows> SearchAsync(string query, string language, DateTime? firstAirDate, int page, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Discover TV shows by different types of data like average rating, number of votes, genres, the network they aired on and air dates.
-        /// </summary>
-        Task<SeriesList> DiscoverAsync(string language, int? year, DateTime? minimumDate, DateTime? maximumDate, int? voteCount, decimal? voteAverage, string genres, string networks, int page, CancellationToken cancellationToken);
+		/// <summary>
+		/// Discover TV shows by different types of data like average rating, number of votes, genres, the network they aired on and air dates.
+		/// </summary>
+		Task<Shows> DiscoverAsync(string language, int? year, DateTime? minimumDate, DateTime? maximumDate, int? voteCount, decimal? voteAverage, string genres, string networks, int page, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Get the primary information about a TV series by id.
 		/// </summary>
-		Task<Series> GetAsync(int id, string language, bool appendAll, CancellationToken cancellationToken);
+		Task<Show> GetAsync(int id, string language, bool appendAll, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Get the primary information about a TV season by its season number.
@@ -144,7 +153,7 @@ namespace System.Net.TMDb
 		/// <summary>
 		/// Get the similar TV shows for a specific tv id.
 		/// </summary>
-		Task<SeriesList> GetSimilarAsync(int id, string language, int page, CancellationToken cancellationToken);
+		Task<Shows> GetSimilarAsync(int id, string language, int page, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Get the videos that have been added to a TV series (trailers, opening credits, etc...)
@@ -159,22 +168,22 @@ namespace System.Net.TMDb
 		/// <summary>
 		/// Get the list of popular TV shows. This list refreshes every day.
 		/// </summary>
-		Task<SeriesList> GetPopularAsync(string language, int page, CancellationToken cancellationToken);
+		Task<Shows> GetPopularAsync(string language, int page, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Get the list of top rated TV shows. By default, this list will only include TV shows that have 2 or more votes. This list refreshes every day.
 		/// </summary>
-		Task<SeriesList> GetTopRatedAsync(string language, int page, CancellationToken cancellationToken);
+		Task<Shows> GetTopRatedAsync(string language, int page, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Get a list of TV show ids that have been edited. The maximum number of days that can be returned in a single request is 14.
-        /// </summary>
-        Task<ChangeList> GetChangesAsync(DateTime? minimumDate, DateTime? maximumDate, int page, CancellationToken cancellationToken);
+		/// <summary>
+		/// Get a list of TV show ids that have been edited. The maximum number of days that can be returned in a single request is 14.
+		/// </summary>
+		Task<Changes> GetChangesAsync(DateTime? minimumDate, DateTime? maximumDate, int page, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// This method is used to retrieve the basic information about a TV network. You can use this ID to search for TV shows with the discover. 
-        /// </summary>
-        Task<string> GetNetworkAsync(int id, CancellationToken cancellationToken);
+		/// <summary>
+		/// This method is used to retrieve the basic information about a TV network. You can use this ID to search for TV shows with the discover. 
+		/// </summary>
+		Task<string> GetNetworkAsync(int id, CancellationToken cancellationToken);
 	}
 
 	public interface IGenreInfo
@@ -182,39 +191,39 @@ namespace System.Net.TMDb
 		/// <summary>
 		/// Get the list of genres.
 		/// </summary>
-        Task<IEnumerable<Genre>> GetAsync(DataInfoType type, CancellationToken cancellationToken);
+		Task<IEnumerable<Genre>> GetAsync(DataInfoType type, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Get the list of movies for a particular genre by id. By default, only movies with 10 or more votes are included.
-        /// </summary>
-		Task<MovieList> GetMoviesAsync(int id, string language, bool includeAdult, int page, CancellationToken cancellationToken);
+		/// <summary>
+		/// Get the list of movies for a particular genre by id. By default, only movies with 10 or more votes are included.
+		/// </summary>
+		Task<Movies> GetMoviesAsync(int id, string language, bool includeAdult, int page, CancellationToken cancellationToken);
 	}
 
 	public interface ICollectionInfo
 	{
-        /// <summary>
-        /// Get the basic collection information for a specific collection id.
-        /// </summary>
-        Task<Collection> GetAsync(int id, string language, bool appendAll, CancellationToken cancellationToken);
+		/// <summary>
+		/// Get the basic collection information for a specific collection id.
+		/// </summary>
+		Task<Collection> GetAsync(int id, string language, bool appendAll, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Get all of the images for a particular collection by collection id.
-        /// </summary>
-        Task<Images> GetImagesAsync(int id, string language, CancellationToken cancellationToken);
+		/// <summary>
+		/// Get all of the images for a particular collection by collection id.
+		/// </summary>
+		Task<Images> GetImagesAsync(int id, string language, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Search for collections by name.
-        /// </summary>
-		Task<CollectionList> SearchAsync(string query, string language, int page, CancellationToken cancellationToken);
+		/// <summary>
+		/// Search for collections by name.
+		/// </summary>
+		Task<Collections> SearchAsync(string query, string language, int page, CancellationToken cancellationToken);
 	}
 	
 	public interface ICompanyInfo
 	{
 		Task<Company> GetAsync(int id, CancellationToken cancellationToken);
 
-		Task<MovieList> GetMoviesAsync(int id, string language, int page, CancellationToken cancellationToken);
+		Task<Movies> GetMoviesAsync(int id, string language, int page, CancellationToken cancellationToken);
 
-		Task<CompanyList> SearchAsync(string query, int page, CancellationToken cancellationToken);
+		Task<Companies> SearchAsync(string query, int page, CancellationToken cancellationToken);
 	}
 
 	public interface IPeopleInfo
@@ -236,74 +245,82 @@ namespace System.Net.TMDb
 		/// </summary>
 		Task<ExternalIds> GetIdsAsync(int id, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Search for people by name.
-        /// </summary>
-		Task<PersonList> SearchAsync(string query, bool includeAdult, int page, CancellationToken cancellationToken);
+		/// <summary>
+		/// Search for people by name.
+		/// </summary>
+		Task<People> SearchAsync(string query, bool includeAdult, int page, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Get a list of people ids that have been edited. The maximum number of days that can be returned in a single request is 14.
-        /// </summary>
-        Task<ChangeList> GetChangesAsync(DateTime? minimumDate, DateTime? maximumDate, int page, CancellationToken cancellationToken);
+		/// <summary>
+		/// Get a list of people ids that have been edited. The maximum number of days that can be returned in a single request is 14.
+		/// </summary>
+		Task<Changes> GetChangesAsync(DateTime? minimumDate, DateTime? maximumDate, int page, CancellationToken cancellationToken);
 	}
 
-    public interface IListInfo
-    {
-        /// <summary>
-        /// Get a list by id.
-        /// </summary>
-        Task<Lists> GetAsync(string id, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Check to see if a movie ID is already added to a list.
-        /// </summary>
-        Task<bool> ContainsAsync(string id, int movieId, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// This method lets users create a new list. A valid session id is required.
-        /// </summary>
-        Task<string> CreateAsync(string session, string name, string description, string language, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// This method lets users add new movies to a list that they created. A valid session id is required.
-        /// </summary>
-        Task<bool> InsertAsync(string session, string id, string mediaId, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// This method lets users delete movies from a list that they created. A valid session id is required.
-        /// </summary>
-        Task<bool> RemoveAsync(string session, string id, string mediaId, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Clear all of the items within a list. This is a irreversible action and should be treated with caution. A valid session id is required.
-        /// </summary>
-        Task<bool> ClearAsync(string session, string id, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Delete a list by id.
-        /// </summary>
-        Task<bool> DeleteAsync(string session, string id, CancellationToken cancellationToken);
-    }
-
-    public interface ISystemInfo
+	public interface IListInfo
 	{
-        Task<IEnumerable<Certification>> GetCertificationsAsync(DataInfoType type, CancellationToken cancellationToken);
+		/// <summary>
+		/// Get a list by id.
+		/// </summary>
+		Task<List> GetAsync(string id, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Get the system wide configuration information. Some elements of the API require some knowledge of this configuration data. 
-        /// </summary>
-        Task<dynamic> GetConfigurationAsync(CancellationToken cancellationToken);
+		/// <summary>
+		/// Check to see if a movie ID is already added to a list.
+		/// </summary>
+		Task<bool> ContainsAsync(string id, int movieId, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Get the list of supported timezones for the API methods that support them.
-        /// </summary>
-        Task<dynamic> GetTimezonesAsync(CancellationToken cancellationToken);
+		/// <summary>
+		/// This method lets users create a new list. A valid session id is required.
+		/// </summary>
+		Task<string> CreateAsync(string session, string name, string description, string language, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Get a list of valid jobs.
-        /// </summary>
-        Task<IEnumerable<Job>> GetJobsAsync(CancellationToken cancellationToken);
-    }
+		/// <summary>
+		/// This method lets users add new movies to a list that they created. A valid session id is required.
+		/// </summary>
+		Task<bool> InsertAsync(string session, string id, string mediaId, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// This method lets users delete movies from a list that they created. A valid session id is required.
+		/// </summary>
+		Task<bool> RemoveAsync(string session, string id, string mediaId, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Clear all of the items within a list. This is a irreversible action and should be treated with caution. A valid session id is required.
+		/// </summary>
+		Task<bool> ClearAsync(string session, string id, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Delete a list by id.
+		/// </summary>
+		Task<bool> DeleteAsync(string session, string id, CancellationToken cancellationToken);
+	}
+
+	public interface IReviewInfo
+	{
+		/// <summary>
+		/// Get the full details of a review by id.
+		/// </summary>
+		Task<Review> GetAsync(string id, CancellationToken cancellationToken);
+	}
+
+	public interface ISystemInfo
+	{
+		Task<IEnumerable<Certification>> GetCertificationsAsync(DataInfoType type, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Get the system wide configuration information. Some elements of the API require some knowledge of this configuration data. 
+		/// </summary>
+		Task<dynamic> GetConfigurationAsync(CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Get the list of supported timezones for the API methods that support them.
+		/// </summary>
+		Task<dynamic> GetTimezonesAsync(CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Get a list of valid jobs.
+		/// </summary>
+		Task<IEnumerable<Job>> GetJobsAsync(CancellationToken cancellationToken);
+	}
 
 	[Flags]
 	public enum DataInfoType

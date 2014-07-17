@@ -1,32 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace System.Net.TMDb
 {
-    //[DataContract]
-    //public class ChangedItem
-    //{
-    //    [DataMember(Name = "id")]
-    //    public string Id { get; internal set; }
-
-    //    [DataMember(Name = "action")]
-    //    public string Action { get; internal set; }
-
-    //    [DataMember(Name = "time")]
-    //    public string Time { get; internal set; }
-
-    //    [DataMember(Name = "value")]
-    //    public object Value { get; internal set; }
-		
-    //    [DataMember(Name = "iso_639_1")]
-    //    public string LanguageCode { get; internal set; }
-    //}
-
-    public class ChangeList : PagedResult<ChangedItem>
-	{
-	}
-	
 	[DataContract]
 	public class ChangedItem
 	{
@@ -36,13 +12,10 @@ namespace System.Net.TMDb
 		[DataMember(Name = "adult")]
 		public bool Adult { get; internal set; }
 	}
-	
-	[DataContract]
-	internal class Certifications
-	{
-		[DataMember(Name = "certifications")]
-		public IEnumerable<Certification> Results { get; internal set; }
-	}
+
+    public class Changes : PagedResult<ChangedItem>
+    {
+    }
 
 	[DataContract]
 	public class Certification
@@ -53,6 +26,13 @@ namespace System.Net.TMDb
 		[DataMember(Name = "meaning")]
 		public string Meaning { get; internal set; }
 	}
+
+    [DataContract]
+    internal class Certifications
+    {
+        [DataMember(Name = "certifications")]
+        public IEnumerable<Certification> Results { get; internal set; }
+    }
 	
 	[DataContract]
 	public class Collection
@@ -73,7 +53,7 @@ namespace System.Net.TMDb
 		public IEnumerable<Movie> Parts { get; internal set; }
 	}
 
-	public class CollectionList : PagedResult<Collection>
+	public class Collections : PagedResult<Collection>
 	{
 	}
 
@@ -102,7 +82,7 @@ namespace System.Net.TMDb
 		public string Logo { get; internal set; }
 	}
 
-	public class CompanyList : PagedResult<Company>
+	public class Companies : PagedResult<Company>
 	{
 	}
 
@@ -126,29 +106,29 @@ namespace System.Net.TMDb
 		public string Name { get; internal set; }
 	}
 
-    [DataContract]
-    internal class Jobs
-    {
-        [DataMember(Name = "jobs")]
-        public IEnumerable<Job> Results { get; internal set; }
-    }
+	[DataContract]
+	internal class Jobs
+	{
+		[DataMember(Name = "jobs")]
+		public IEnumerable<Job> Results { get; internal set; }
+	}
 
-    [DataContract]
-    public class Job
-    {
-        [DataMember(Name = "department")]
-        public string Department { get; internal set; }
+	[DataContract]
+	public class Job
+	{
+		[DataMember(Name = "department")]
+		public string Department { get; internal set; }
 
-        [DataMember(Name = "job_list")]
-        public IEnumerable<string> Items { get; internal set; }
-    }
+		[DataMember(Name = "job_list")]
+		public IEnumerable<string> Items { get; internal set; }
+	}
 
-	public class SeriesList : PagedResult<Series>
+	public class Shows : PagedResult<Show>
 	{
 	}
 
 	[DataContract]
-	public class Series
+	public class Show
 	{
 		[DataMember(Name = "id")]
 		public int Id { get; internal set; }
@@ -234,9 +214,9 @@ namespace System.Net.TMDb
 		[DataMember(Name = "status")]
 		public string Status { get; internal set; }
 
-        [DataMember(Name = "external_ids")]
-        public ExternalIds External { get; internal set; }
-    }
+		[DataMember(Name = "external_ids")]
+		public ExternalIds External { get; internal set; }
+	}
 
 	[DataContract]
 	public class Season
@@ -271,8 +251,8 @@ namespace System.Net.TMDb
 		[DataMember(Name = "episodes")]
 		public IEnumerable<Episode> Episodes { get; internal set; }
 
-        [DataMember(Name = "external_ids")]
-        public ExternalIds External { get; internal set; }
+		[DataMember(Name = "external_ids")]
+		public ExternalIds External { get; internal set; }
 	}
 
 	[DataContract]
@@ -317,9 +297,9 @@ namespace System.Net.TMDb
 		[DataMember(Name = "vote_count")]
 		public int VoteCount { get; internal set; }
 
-        [DataMember(Name = "external_ids")]
-        public ExternalIds External { get; internal set; }
-    }
+		[DataMember(Name = "external_ids")]
+		public ExternalIds External { get; internal set; }
+	}
 
 	[DataContract]
 	public class Network
@@ -340,8 +320,8 @@ namespace System.Net.TMDb
 		[DataMember(Name = "freebase_mid")]
 		public string FreebaseMid { get; internal set; }
 
-        [DataMember(Name = "imdb_id")]
-        public string Imdb { get; internal set; }
+		[DataMember(Name = "imdb_id")]
+		public string Imdb { get; internal set; }
 
 		[DataMember(Name = "tvdb_id")]
 		public int? Tvdb { get; internal set; }
@@ -485,10 +465,15 @@ namespace System.Net.TMDb
 		[DataMember(Name = "status")]
 		public string Status { get; internal set; }
 
-        [DataMember(Name = "external_ids")]
-        public ExternalIds External { get; internal set; }
+		[DataMember(Name = "external_ids")]
+		public ExternalIds External { get; internal set; }
 
 	}
+
+    public class Movies : PagedResult<Movie>
+    {
+    }
+
 
 	[DataContract]
 	public class Images
@@ -498,10 +483,6 @@ namespace System.Net.TMDb
 
 		[DataMember(Name = "posters")]
 		public IEnumerable<Image> Posters { get; internal set; }
-	}
-
-	public class MovieList : PagedResult<Movie>
-	{
 	}
 
 	[DataContract]
@@ -515,7 +496,7 @@ namespace System.Net.TMDb
 	public class AlternativeTitle
 	{
 		[DataMember(Name = "iso_3166_1")]
-		public string Code { get; internal set; }
+        public string CountryCode { get; internal set; }
 
 		[DataMember(Name = "title")]
 		public string Title { get; internal set; }
@@ -584,20 +565,20 @@ namespace System.Net.TMDb
 	public class Releases
 	{
 		[DataMember(Name = "countries")]
-		public IEnumerable<CountryRelease> Countries { get; internal set; }
+        public IEnumerable<Release> Results { get; internal set; }
 	}
 
 	[DataContract]
-	public class CountryRelease
+	public class Release
 	{
 		[DataMember(Name = "iso_3166_1")]
-		public string Code { get; internal set; }
+        public string CountryCode { get; internal set; }
 
 		[DataMember(Name = "certification")]
 		public string Certification { get; internal set; }
 
 		[DataMember(Name = "release_date")]
-		public DateTime ReleaseDate { get; internal set; }
+		public DateTime Date { get; internal set; }
 	}
 
 	[DataContract]
@@ -662,7 +643,7 @@ namespace System.Net.TMDb
 		public IEnumerable<Person> People { get; internal set; }
 
 		[DataMember(Name = "tv_results")]
-		public IEnumerable<Series> Series { get; internal set; }
+		public IEnumerable<Show> Series { get; internal set; }
 	}
 
 	[DataContract]
@@ -704,9 +685,9 @@ namespace System.Net.TMDb
 		[DataMember(Name = "images")]
 		public PersonImages Images { get; internal set; }
 
-        [DataMember(Name = "external_ids")]
-        public ExternalIds External { get; internal set; }
-    }
+		[DataMember(Name = "external_ids")]
+		public ExternalIds External { get; internal set; }
+	}
 
 	[DataContract]
 	public class PersonImages
@@ -778,7 +759,7 @@ namespace System.Net.TMDb
 		public bool Adult { get; internal set; }
 	}
 
-	public class PersonList : PagedResult<Person>
+	public class People : PagedResult<Person>
 	{
 	}
 	
@@ -810,35 +791,43 @@ namespace System.Net.TMDb
 		public string Url { get; internal set; }
 	}
 
-    [DataContract]
-	public class Lists
+    public class Reviews : PagedResult<Review>
     {
-        [DataMember(Name = "id")]
-        public string Id { get; internal set; }
+    }
 
-        [DataMember(Name = "name")]
-        public string Name { get; internal set; }
+	[DataContract]
+	public class List
+	{
+		[DataMember(Name = "id")]
+		public string Id { get; internal set; }
 
-        [DataMember(Name = "description")]
-        public string Description { get; internal set; }
+		[DataMember(Name = "name")]
+		public string Name { get; internal set; }
 
-        [DataMember(Name = "poster_path")]
-        public string Poster { get; internal set; }
+		[DataMember(Name = "description")]
+		public string Description { get; internal set; }
 
-        [DataMember(Name = "created_by")]
-        public string Creator { get; internal set; }
+		[DataMember(Name = "poster_path")]
+		public string Poster { get; internal set; }
 
-        [DataMember(Name = "iso_639_1")]
-        public string LanguageCode { get; internal set; }
+		[DataMember(Name = "created_by")]
+		public string Creator { get; internal set; }
 
-        [DataMember(Name = "posters")]
-        public IEnumerable<Movie> Items { get; internal set; }
+		[DataMember(Name = "iso_639_1")]
+		public string LanguageCode { get; internal set; }
 
-        [DataMember(Name = "favorite_count")]
-        public int FavoriteCount { get; internal set; }
+        [DataMember(Name = "items")]
+        public IEnumerable<Movie> Movies { get; internal set; }
 
-        [DataMember(Name = "item_count")]
-        public int ItemCount { get; internal set; }
+		[DataMember(Name = "favorite_count")]
+		public int FavoriteCount { get; internal set; }
+
+		[DataMember(Name = "item_count")]
+        public int MovieCount { get; internal set; }
+	}
+
+    public class Lists : PagedResult<List>
+    {
     }
 
 	[DataContract]

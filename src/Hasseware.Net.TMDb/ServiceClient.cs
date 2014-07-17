@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -21,12 +20,13 @@ namespace System.Net.TMDb
 			this.BaseUrl = String.Concat(@"http://api.themoviedb.org/3/{0}?api_key=", apiKey, "&");
 
 			this.Movies = new MovieContext(this);
-			this.Series = new SeriesContext(this);
+			this.Shows = new ShowsContext(this);
 			this.Companies = new CompanyContext(this);
 			this.Genres = new GenreContext(this);
 			this.People = new PeopleContext(this);
 			this.Collections = new CollectionContext(this);
 			this.Lists = new ListContext(this);
+			this.Reviews = new ReviewContext(this);
 			this.Settings = new SystemContext(this);
 		}
 
@@ -34,7 +34,7 @@ namespace System.Net.TMDb
 
 		public IMovieInfo Movies { get; private set; }
 
-		public ISeriesInfo Series { get; private set; }
+		public IShowInfo Shows { get; private set; }
 
 		public ICompanyInfo Companies { get; private set; }
 
@@ -45,6 +45,8 @@ namespace System.Net.TMDb
 		public ICollectionInfo Collections { get; private set; }
 
 		public IListInfo Lists { get; private set; }
+
+		public IReviewInfo Reviews { get; private set; }
 
 		public ISystemInfo Settings { get; private set; }
 
@@ -208,7 +210,7 @@ namespace System.Net.TMDb
 				return await Deserialize<FindResult>(response);
 			}
 
-			public async Task<MovieList> SearchAsync(string query, string language, bool includeAdult, int page, CancellationToken cancellationToken)
+			public async Task<Movies> SearchAsync(string query, string language, bool includeAdult, int page, CancellationToken cancellationToken)
 			{
 				var parameters = new Dictionary<string, object>
 				{
@@ -218,10 +220,10 @@ namespace System.Net.TMDb
 					{ "language", language }
 				};
 				var response = await client.GetAsync("search/movie", parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<MovieList>(response);
+				return await Deserialize<Movies>(response);
 			}
 
-			public async Task<MovieList> DiscoverAsync(string language, bool includeAdult, int? year, DateTime? minimumDate, DateTime? maximumDate, int? voteCount, decimal? voteAverage, string genres, string companies, int page, CancellationToken cancellationToken)
+			public async Task<Movies> DiscoverAsync(string language, bool includeAdult, int? year, DateTime? minimumDate, DateTime? maximumDate, int? voteCount, decimal? voteAverage, string genres, string companies, int page, CancellationToken cancellationToken)
 			{
 				var parameters = new Dictionary<string, object>
 				{
@@ -237,7 +239,7 @@ namespace System.Net.TMDb
 					{ "with_companies", companies },
 				};
 				var response = await client.GetAsync("discover/movie", parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<MovieList>(response);
+				return await Deserialize<Movies>(response);
 			}
 
 			public async Task<Movie> GetAsync(int id, string language, bool appendAll, CancellationToken cancellationToken)
@@ -254,7 +256,6 @@ namespace System.Net.TMDb
 			{
 				string cmd = String.Format("movie/{0}/images", id);
 				var parameters = new Dictionary<string, object> { { "language", language } };
-
 				var response = await client.GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
 				return await Deserialize<Images>(response);
 			}
@@ -270,54 +271,69 @@ namespace System.Net.TMDb
 			{
 				string cmd = String.Format("movie/{0}/videos", id);
 				var parameters = new Dictionary<string, object> { { "language", language } };
-
 				var response = await client.GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
 				return (await Deserialize<Videos>(response)).Results;
 			}
 
-			public async Task<MovieList> GetSimilarAsync(int id, string language, int page, CancellationToken cancellationToken)
+			public async Task<Reviews> GetReviewsAsync(int id, string language, int page, CancellationToken cancellationToken)
+			{
+				string cmd = String.Format("movie/{0}/reviews", id);
+				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
+				var response = await client.GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
+				return await Deserialize<Reviews>(response);
+			}
+
+			public async Task<Lists> GetListsAsync(int id, string language, int page, CancellationToken cancellationToken)
+			{
+				string cmd = String.Format("movie/{0}/lists", id);
+				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
+				var response = await client.GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
+				return await Deserialize<Lists>(response);
+			}
+
+			public async Task<Movies> GetSimilarAsync(int id, string language, int page, CancellationToken cancellationToken)
 			{
 				string cmd = String.Format("movie/{0}/similar_movies", id);
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
 				var response = await client.GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<MovieList>(response);
+				return await Deserialize<Movies>(response);
 			}
 
-			public async Task<MovieList> GetGuestRatedAsync(string session, string language, int page, CancellationToken cancellationToken)
+			public async Task<Movies> GetGuestRatedAsync(string session, string language, int page, CancellationToken cancellationToken)
 			{
 				string cmd = String.Format("guest_session/{0}/rated_movies", session);
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
 				var response = await client.GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<MovieList>(response);
+				return await Deserialize<Movies>(response);
 
 			}
 
-			public async Task<MovieList> GetPopularAsync(string language, int page, CancellationToken cancellationToken)
+			public async Task<Movies> GetPopularAsync(string language, int page, CancellationToken cancellationToken)
 			{
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
 				var response = await client.GetAsync("movie/popular", parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<MovieList>(response);
+				return await Deserialize<Movies>(response);
 			}
 
-			public async Task<MovieList> GetTopRatedAsync(string language, int page, CancellationToken cancellationToken)
+			public async Task<Movies> GetTopRatedAsync(string language, int page, CancellationToken cancellationToken)
 			{
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
 				var response = await client.GetAsync("movie/top_rated", parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<MovieList>(response);
+				return await Deserialize<Movies>(response);
 			}
 
-			public async Task<MovieList> GetNowPlayingAsync(string language, int page, CancellationToken cancellationToken)
+			public async Task<Movies> GetNowPlayingAsync(string language, int page, CancellationToken cancellationToken)
 			{
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
 				var response = await client.GetAsync("movie/now_playing", parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<MovieList>(response);
+				return await Deserialize<Movies>(response);
 			}
 
-			public async Task<MovieList> GetUpcomingAsync(string language, int page, CancellationToken cancellationToken)
+			public async Task<Movies> GetUpcomingAsync(string language, int page, CancellationToken cancellationToken)
 			{
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
 				var response = await client.GetAsync("movie/upcoming", parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<MovieList>(response);
+				return await Deserialize<Movies>(response);
 			}
 
 			public async Task<IEnumerable<AlternativeTitle>> GetAlternativeTitlesAsync(int id, string language, CancellationToken cancellationToken)
@@ -335,11 +351,11 @@ namespace System.Net.TMDb
 				return (await Deserialize<Keywords>(response)).Results;
 			}
 
-			public async Task<IEnumerable<CountryRelease>> GetReleasesAsync(int id, CancellationToken cancellationToken)
+			public async Task<IEnumerable<Release>> GetReleasesAsync(int id, CancellationToken cancellationToken)
 			{
 				string cmd = String.Format("movie/{0}/releases", id);
 				var response = await client.GetAsync(cmd, null, cancellationToken).ConfigureAwait(false);
-				return (await Deserialize<Releases>(response)).Countries;
+				return (await Deserialize<Releases>(response)).Results;
 			}
 
 			public async Task<IEnumerable<Translation>> GetTranslationsAsync(int id, CancellationToken cancellationToken)
@@ -349,7 +365,7 @@ namespace System.Net.TMDb
 				return (await Deserialize<Translations>(response)).Results;
 			}
 
-			public async Task<ChangeList> GetChangesAsync(DateTime? minimumDate, DateTime? maximumDate, int page, CancellationToken cancellationToken)
+			public async Task<Changes> GetChangesAsync(DateTime? minimumDate, DateTime? maximumDate, int page, CancellationToken cancellationToken)
 			{
 				var parameters = new Dictionary<string, object>
 				{
@@ -358,20 +374,20 @@ namespace System.Net.TMDb
 					{ "end_date", maximumDate }
 				};
 				var response = await client.GetAsync("movie/changes", parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<ChangeList>(response);
+				return await Deserialize<Changes>(response);
 			}
 		}
 
-		private sealed class SeriesContext : ISeriesInfo
+		private sealed class ShowsContext : IShowInfo
 		{
 			private ServiceClient client;
 
-			internal SeriesContext(ServiceClient client)
+			internal ShowsContext(ServiceClient client)
 			{
 				this.client = client;
 			}
 
-			public async Task<SeriesList> SearchAsync(string query, string language, DateTime? firstAirDate, int page, CancellationToken cancellationToken)
+			public async Task<Shows> SearchAsync(string query, string language, DateTime? firstAirDate, int page, CancellationToken cancellationToken)
 			{
 				var parameters = new Dictionary<string, object>
 				{
@@ -381,10 +397,10 @@ namespace System.Net.TMDb
 					{ "first_air_date_year", firstAirDate }
 				};
 				var response = await client.GetAsync("search/tv", parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<SeriesList>(response);
+				return await Deserialize<Shows>(response);
 			}
 
-			public async Task<SeriesList> DiscoverAsync(string language, int? year, DateTime? minimumDate, DateTime? maximumDate, int? voteCount, decimal? voteAverage, string genres, string networks, int page, CancellationToken cancellationToken)
+			public async Task<Shows> DiscoverAsync(string language, int? year, DateTime? minimumDate, DateTime? maximumDate, int? voteCount, decimal? voteAverage, string genres, string networks, int page, CancellationToken cancellationToken)
 			{
 				var parameters = new Dictionary<string, object>
 				{
@@ -399,17 +415,17 @@ namespace System.Net.TMDb
 					{ "with_networks", networks },
 				};
 				var response = await client.GetAsync("discover/tv", parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<SeriesList>(response);
+				return await Deserialize<Shows>(response);
 			}
 
-			public async Task<Series> GetAsync(int id, string language, bool appendAll, CancellationToken cancellationToken)
+			public async Task<Show> GetAsync(int id, string language, bool appendAll, CancellationToken cancellationToken)
 			{
 				string cmd = String.Format("tv/{0}", id);
 				var parameters = new Dictionary<string, object> { { "language", language } };
 				if (appendAll) parameters.Add("append_to_response", "images,credits,keywords,videos,translations,external_ids");
 
 				var response = await client.GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<Series>(response);
+				return await Deserialize<Show>(response);
 			}
 
 			public async Task<Season> GetSeasonAsync(int id, int season, string language, bool appendAll, CancellationToken cancellationToken)
@@ -471,13 +487,13 @@ namespace System.Net.TMDb
 				return await Deserialize<Images>(response);
 			}
 
-			public async Task<SeriesList> GetSimilarAsync(int id, string language, int page, CancellationToken cancellationToken)
+			public async Task<Shows> GetSimilarAsync(int id, string language, int page, CancellationToken cancellationToken)
 			{
 				string cmd = String.Format("tv/{0}/similar", id);
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
 
 				var response = await client.GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<SeriesList>(response);
+				return await Deserialize<Shows>(response);
 			}
 
 			public async Task<IEnumerable<Video>> GetVideosAsync(int id, int? season, int? episode, string language, CancellationToken cancellationToken)
@@ -504,21 +520,21 @@ namespace System.Net.TMDb
 				return (await Deserialize<Translations>(response)).Results;
 			}
 
-			public async Task<SeriesList> GetPopularAsync(string language, int page, CancellationToken cancellationToken)
+			public async Task<Shows> GetPopularAsync(string language, int page, CancellationToken cancellationToken)
 			{
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
 				var response = await client.GetAsync("tv/popular", parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<SeriesList>(response);
+				return await Deserialize<Shows>(response);
 			}
 
-			public async Task<SeriesList> GetTopRatedAsync(string language, int page, CancellationToken cancellationToken)
+			public async Task<Shows> GetTopRatedAsync(string language, int page, CancellationToken cancellationToken)
 			{
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
 				var response = await client.GetAsync("tv/top_rated", parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<SeriesList>(response);
+				return await Deserialize<Shows>(response);
 			}
 
-			public async Task<ChangeList> GetChangesAsync(DateTime? minimumDate, DateTime? maximumDate, int page, CancellationToken cancellationToken)
+			public async Task<Changes> GetChangesAsync(DateTime? minimumDate, DateTime? maximumDate, int page, CancellationToken cancellationToken)
 			{
 				var parameters = new Dictionary<string, object>
 				{
@@ -527,7 +543,7 @@ namespace System.Net.TMDb
 					{ "end_date", maximumDate }
 				};
 				var response = await client.GetAsync("tv/changes", parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<ChangeList>(response);
+				return await Deserialize<Changes>(response);
 			}
 
 			public async Task<string> GetNetworkAsync(int id, CancellationToken cancellationToken)
@@ -566,7 +582,7 @@ namespace System.Net.TMDb
 				return await Deserialize<Images>(response);
 			}
 
-			public async Task<CollectionList> SearchAsync(string query, string language, int page, CancellationToken cancellationToken)
+			public async Task<Collections> SearchAsync(string query, string language, int page, CancellationToken cancellationToken)
 			{
 				var parameters = new Dictionary<string, object>
 				{
@@ -575,7 +591,7 @@ namespace System.Net.TMDb
 					{ "language", language }
 				};
 				var response = await client.GetAsync("search/collection", parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<CollectionList>(response);
+				return await Deserialize<Collections>(response);
 			}
 		}
 
@@ -595,19 +611,19 @@ namespace System.Net.TMDb
 				return await Deserialize<Company>(response);
 			}
 
-			public async Task<MovieList> GetMoviesAsync(int id, string language, int page, CancellationToken cancellationToken)
+			public async Task<Movies> GetMoviesAsync(int id, string language, int page, CancellationToken cancellationToken)
 			{
 				string cmd = String.Format("company/{0}/movies", id);
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
 				var response = await client.GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<MovieList>(response);
+				return await Deserialize<Movies>(response);
 			}
 
-			public async Task<CompanyList> SearchAsync(string query, int page, CancellationToken cancellationToken)
+			public async Task<Companies> SearchAsync(string query, int page, CancellationToken cancellationToken)
 			{
 				var parameters = new Dictionary<string, object> { { "query", query }, { "page", page } };
 				var response = await client.GetAsync("search/company", parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<CompanyList>(response);
+				return await Deserialize<Companies>(response);
 			}
 		}
 
@@ -634,13 +650,13 @@ namespace System.Net.TMDb
 				return (await Deserialize<Genres>(response)).Results;
 			}
 
-			public async Task<MovieList> GetMoviesAsync(int id, string language, bool includeAdult, int page, CancellationToken cancellationToken)
+			public async Task<Movies> GetMoviesAsync(int id, string language, bool includeAdult, int page, CancellationToken cancellationToken)
 			{
 				string cmd = String.Format("genre/{0}/movies", id);
 				var parameters = new Dictionary<string, object> { { "page", page }, { "include_adult", includeAdult }, { "language", language } };
 
 				var response = await client.GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<MovieList>(response);
+				return await Deserialize<Movies>(response);
 			}
 		}
 
@@ -694,7 +710,7 @@ namespace System.Net.TMDb
 				return await Deserialize<ExternalIds>(response);
 			}
 
-			public async Task<PersonList> SearchAsync(string query, bool includeAdult, int page, CancellationToken cancellationToken)
+			public async Task<People> SearchAsync(string query, bool includeAdult, int page, CancellationToken cancellationToken)
 			{
 				var parameters = new Dictionary<string, object>
 				{
@@ -703,10 +719,10 @@ namespace System.Net.TMDb
 					{ "include_adult", includeAdult }
 				};
 				var response = await client.GetAsync("search/person", parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<PersonList>(response);
+				return await Deserialize<People>(response);
 			}
 
-			public async Task<ChangeList> GetChangesAsync(DateTime? minimumDate, DateTime? maximumDate, int page, CancellationToken cancellationToken)
+			public async Task<Changes> GetChangesAsync(DateTime? minimumDate, DateTime? maximumDate, int page, CancellationToken cancellationToken)
 			{
 				var parameters = new Dictionary<string, object>
 				{
@@ -715,7 +731,7 @@ namespace System.Net.TMDb
 					{ "end_date", maximumDate }
 				};
 				var response = await client.GetAsync("person/changes", parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<ChangeList>(response);
+				return await Deserialize<Changes>(response);
 			}
 		}
 
@@ -728,11 +744,11 @@ namespace System.Net.TMDb
 				this.client = client;
 			}
 
-			public async Task<Lists> GetAsync(string id, CancellationToken cancellationToken)
+			public async Task<List> GetAsync(string id, CancellationToken cancellationToken)
 			{
 				string cmd = String.Format("list/{0}", id);
 				var response = await client.GetAsync(cmd, null, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<Lists>(response);
+				return await Deserialize<List>(response);
 			}
 
 			public async Task<bool> ContainsAsync(string id, int movieId, CancellationToken cancellationToken)
@@ -794,6 +810,23 @@ namespace System.Net.TMDb
 			}
 		}
 
+		private sealed class ReviewContext : IReviewInfo
+		{
+			private ServiceClient client;
+
+			internal ReviewContext(ServiceClient client)
+			{
+				this.client = client;
+			}
+
+			public async Task<Review> GetAsync(string id, CancellationToken cancellationToken)
+			{
+				string cmd = String.Format("review/{0}", id);
+				var response = await client.GetAsync(cmd, null, cancellationToken).ConfigureAwait(false);
+				return await Deserialize<Review>(response);
+			}
+
+		}
 		private sealed class SystemContext : ISystemInfo
 		{
 			private ServiceClient client;
