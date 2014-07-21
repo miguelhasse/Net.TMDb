@@ -219,10 +219,19 @@ namespace System.Net.TMDb
 	
 	public interface ICompanyInfo
 	{
+		/// <summary>
+		/// This method is used to retrieve all of the basic information about a company.
+		/// </summary>
 		Task<Company> GetAsync(int id, CancellationToken cancellationToken);
 
+		/// <summary>
+		/// Get the list of movies associated with a particular company.
+		/// </summary>
 		Task<Movies> GetMoviesAsync(int id, string language, int page, CancellationToken cancellationToken);
 
+		/// <summary>
+		/// Search for companies by name.
+		/// </summary>
 		Task<Companies> SearchAsync(string query, int page, CancellationToken cancellationToken);
 	}
 
@@ -233,6 +242,9 @@ namespace System.Net.TMDb
 		/// </summary>
 		Task<Person> GetAsync(int id, bool appendAll, CancellationToken cancellationToken);
 
+		/// <summary>
+		/// Get the movie credits for a specific person id.
+		/// </summary>
 		Task<PersonCredits> GetCreditsAsync(int id, string language, DataInfoType type, CancellationToken cancellationToken);
 
 		/// <summary>
@@ -304,6 +316,9 @@ namespace System.Net.TMDb
 
 	public interface ISystemInfo
 	{
+		/// <summary>
+		/// Get the list of supported certifications for movie and/or tv shows.
+		/// </summary>
 		Task<IEnumerable<Certification>> GetCertificationsAsync(DataInfoType type, CancellationToken cancellationToken);
 
 		/// <summary>

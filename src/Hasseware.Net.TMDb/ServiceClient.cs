@@ -52,6 +52,9 @@ namespace System.Net.TMDb
 
 		#region Authentication Methods
 
+		/// <summary>
+		/// This method is used to generate a valid request token and authenticate user with a TMDb username and password.
+		/// </summary>
 		public async Task<string> LoginAsync(string username, string password, CancellationToken cancellationToken)
 		{
 			var response = await GetAsync("authentication/token/new", null, cancellationToken).ConfigureAwait(false);
@@ -65,6 +68,10 @@ namespace System.Net.TMDb
 			return (await Deserialize<AuthenticationResult>(response)).Token;
 		}
 
+		/// <summary>
+		/// This method is used to generate a session id for user based authentication, or a guest session if a null token is used.
+		/// A session id is required in order to use any of the write methods.
+		/// </summary>
 		public async Task<string> GetSessionAsync(string token, CancellationToken cancellationToken)
 		{
 			return await (token == null ? OpenGuestSessionAsync(cancellationToken) : OpenSessionAsync(token, cancellationToken));
@@ -77,6 +84,9 @@ namespace System.Net.TMDb
 			return (await Deserialize<AuthenticationResult>(response)).Session;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
 		private async Task<string> OpenGuestSessionAsync(CancellationToken cancellationToken)
 		{
 			var response = await GetAsync("authentication/guest_session/new", null, cancellationToken).ConfigureAwait(false);
@@ -186,7 +196,7 @@ namespace System.Net.TMDb
 			
 			if (t == typeof(DateTime)) return ((DateTime)value).ToString("yyyy-MM-dd");
 			else if (t == typeof(Decimal)) return ((Decimal)value).ToString(CultureInfo.InvariantCulture);
-			else return value.ToString();
+			else return Uri.EscapeDataString(value.ToString());
 		}
 
 		#endregion
@@ -305,7 +315,6 @@ namespace System.Net.TMDb
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
 				var response = await client.GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
 				return await Deserialize<Movies>(response);
-
 			}
 
 			public async Task<Movies> GetPopularAsync(string language, int page, CancellationToken cancellationToken)
@@ -491,7 +500,6 @@ namespace System.Net.TMDb
 			{
 				string cmd = String.Format("tv/{0}/similar", id);
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
-
 				var response = await client.GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
 				return await Deserialize<Shows>(response);
 			}
@@ -577,7 +585,6 @@ namespace System.Net.TMDb
 			{
 				string cmd = String.Format("collection/{0}/images", id);
 				var parameters = new Dictionary<string, object> { { "language", language } };
-
 				var response = await client.GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
 				return await Deserialize<Images>(response);
 			}
@@ -755,7 +762,6 @@ namespace System.Net.TMDb
 			{
 				string cmd = String.Format("list/{0}/item_status", id);
 				var parameters = new Dictionary<string, object> { { "movie_id", movieId } };
-
 				var response = await client.GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
 				return (await DeserializeDynamic(response)).item_present == true;
 			}
