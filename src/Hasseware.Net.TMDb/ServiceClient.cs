@@ -9,15 +9,27 @@ using System.Threading.Tasks;
 
 namespace System.Net.TMDb
 {
-	public sealed class ServiceClient
+	public sealed class ServiceClient : IDisposable
 	{
-		private readonly string BaseUrl;
+		private readonly string baseUrl;
+		private readonly HttpClient client;
+		private bool disposed = false;
 
 		#region Constructors
 
 		public ServiceClient(string apiKey)
 		{
-			this.BaseUrl = String.Concat(@"http://api.themoviedb.org/3/{0}?api_key=", apiKey, "&");
+			this.baseUrl = String.Concat(@"http://api.themoviedb.org/3/{0}?api_key=", apiKey, "&");
+			this.client = new HttpClient(new HttpClientHandler
+			{
+				AllowAutoRedirect = false,
+				PreAuthenticate = true,
+				UseDefaultCredentials = true,
+				UseCookies = false,
+				AutomaticDecompression =  DecompressionMethods.GZip
+			});
+			this.client.DefaultRequestHeaders.Accept.Add(
+				new MediaTypeWithQualityHeaderValue("application/json"));
 
 			this.Movies = new MovieContext(this);
 			this.Shows = new ShowsContext(this);
@@ -50,6 +62,26 @@ namespace System.Net.TMDb
 
 		public ISystemInfo Settings { get; private set; }
 
+		#region Disposal Implementation
+		
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+		
+		private void Dispose(bool disposing)
+		{
+			if(!this.disposed)
+			{
+				if (disposing) // dispose aggregated resources
+					this.client.Dispose();
+				this.disposed = true; // disposing has been done
+			}
+		}
+		
+		#endregion
+		
 		#region Authentication Methods
 
 		/// <summary>
@@ -84,9 +116,6 @@ namespace System.Net.TMDb
 			return (await Deserialize<AuthenticationResult>(response)).Session;
 		}
 
-		/// <summary>
-		/// 
-		/// </summary>
 		private async Task<string> OpenGuestSessionAsync(CancellationToken cancellationToken)
 		{
 			var response = await GetAsync("authentication/guest_session/new", null, cancellationToken).ConfigureAwait(false);
@@ -99,10 +128,9 @@ namespace System.Net.TMDb
 
 		private Task<HttpResponseMessage> GetAsync(string cmd, IDictionary<string, object> parameters, CancellationToken cancellationToken)
 		{
-			var client = CreateHttpClient();
 			TaskCompletionSource<HttpResponseMessage> tcs = new TaskCompletionSource<HttpResponseMessage>();
 
-			client.GetAsync(CreateRequestUri(cmd, parameters),
+			this.client.GetAsync(CreateRequestUri(cmd, parameters),
 				HttpCompletionOption.ResponseHeadersRead, cancellationToken)
 				.ContinueWith(t => HandleResponseCompletion(t, tcs));
 			return tcs.Task;
@@ -110,11 +138,10 @@ namespace System.Net.TMDb
 
 		private Task<HttpResponseMessage> SendAsync(string cmd, IDictionary<string, object> parameters, HttpContent content, HttpMethod method, CancellationToken cancellationToken)
 		{
-			var client = CreateHttpClient();
 			TaskCompletionSource<HttpResponseMessage> tcs = new TaskCompletionSource<HttpResponseMessage>();
 			var request = new HttpRequestMessage(method, CreateRequestUri(cmd, parameters)) { Content = content };
 
-			client.SendAsync(request, cancellationToken)
+			this.client.SendAsync(request, cancellationToken)
 				.ContinueWith(t => HandleResponseCompletion(t, tcs));
 			return tcs.Task;
 		}
@@ -158,24 +185,10 @@ namespace System.Net.TMDb
 			else if (task.IsCompleted) tcs.TrySetResult(task.Result);
 		}
 
-		private static HttpClient CreateHttpClient()
-		{
-			var client = new HttpClient(new HttpClientHandler
-			{
-				AllowAutoRedirect = false,
-				PreAuthenticate = true,
-				UseDefaultCredentials = true,
-				UseCookies = false,
-				AutomaticDecompression =  DecompressionMethods.GZip
-			});
-			client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-			return client;
-		}
-
 		private Uri CreateRequestUri(string cmd, IDictionary<string, object> parameters)
 		{
 			var sb = new System.Text.StringBuilder();
-			sb.AppendFormat(BaseUrl, cmd);
+			sb.AppendFormat(baseUrl, cmd);
 
 			if (parameters != null)
 			{
@@ -256,7 +269,7 @@ namespace System.Net.TMDb
 			{
 				string cmd = String.Format("movie/{0}", id);
 				var parameters = new Dictionary<string, object> { { "language", language } };
-				if (appendAll) parameters.Add("append_to_response", "alternative_titles,images,credits,keywords,releases,videos,translations,external_ids");
+                if (appendAll) parameters.Add("append_to_response", "alternative_titles,images,credits,keywords,releases,videos,translations,reviews,external_ids");
 
 				var response = await client.GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
 				return await Deserialize<Movie>(response);
