@@ -4,36 +4,39 @@ Implements asynchronous operations and includes support for portable class libra
 
 ### Usage samples ###
 
-    var client = new ServiceClient("<ApiKey>");
-    var movies = await client.Movies.GetTopRatedAsync(null, 1, cancellationToken);
-
-	foreach (Movie m in movies.Results)
+	static async Task Sample(CancellationToken cancellationToken)
 	{
-		var movie = await client.Movies.GetAsync(m.Id, null, true, cancellationToken);
+	    var client = new ServiceClient("<ApiKey>");
 
-		foreach (MediaCast c in movie.Credits.Cast)
+		var options = new ParallelOptions { CancellationToken = cancellationToken };
+
+		Parallel.For(1, 1000, options, (i, loopState) =>
 		{
-			var person = await client.People.GetAsync(c.Id, true, cancellationToken);
-
-			foreach (Image img in person.Images.Results)
+		    var movies = await client.Movies.GetTopRatedAsync(null, i, cancellationToken);
+		
+			foreach (Movie m in movies.Results)
 			{
-				string filepath = Path.Combine("People", img.FilePath.TrimStart('/'));
-				await DownloadImage(img.FilePath, filepath, cancellationToken);
+				var movie = await client.Movies.GetAsync(m.Id, null, true, cancellationToken);
+		
+				var personIds = movie.Credits.Cast.Select(s => s.Id)
+					.Union(movie.Credits.Crew.Select(s => s.Id));
+		
+				Parallel.ForEach(personIds, options, async id =>
+				{
+					var person = await client.People.GetAsync(id, true, cancellationToken);
+		
+					Parallel.ForEach(person.Images.Results, async img =>
+					{
+						string filepath = Path.Combine("People", img.FilePath.TrimStart('/'));
+						await DownloadImage(img.FilePath, filepath, cancellationToken);
+					});
+				});
 			}
-		}
-		foreach (MediaCrew c in movie.Credits.Crew)
-		{
-			var person = await client.People.GetAsync(c.Id, true, cancellationToken);
-
-			foreach (Image img in person.Images.Results)
-			{
-				string filepath = Path.Combine("People", img.FilePath.TrimStart('/'));
-				await DownloadImage(img.FilePath, filepath, cancellationToken);
-			}
-		}
+			if (i == movies.PageCount)
+				loopState.Break();
+		});
 	}
 
-----------
     static async Task DownloadImage(string filename, string localpath, CancellationToken cancellationToken)
     {
         if (!File.Exists(localpath))

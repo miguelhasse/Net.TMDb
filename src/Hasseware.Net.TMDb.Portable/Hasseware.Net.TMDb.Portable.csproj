@@ -8,7 +8,7 @@
     <ProjectGuid>{EF54ECE6-5A39-4AEB-BC0F-071D0D14BBD9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Hasseware.Net.TMDb</RootNamespace>
+    <RootNamespace>System.Net.TMDb</RootNamespace>
     <AssemblyName>Hasseware.Net.TMDb</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
