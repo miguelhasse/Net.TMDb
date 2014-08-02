@@ -11,7 +11,7 @@ Implements asynchronous operations and includes support for portable class libra
 			for (int i = 1, count = 1000; i <= count; i++)
 			{
 			    var movies = await client.Movies.GetTopRatedAsync(null, i, cancellationToken);
-				count == movies.PageCount; // keep track of the actual page count
+				count = movies.PageCount; // keep track of the actual page count
 			
 				foreach (Movie m in movies.Results)
 				{
