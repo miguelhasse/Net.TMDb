@@ -6,35 +6,33 @@ Implements asynchronous operations and includes support for portable class libra
 
 	static async Task Sample(CancellationToken cancellationToken)
 	{
-	    var client = new ServiceClient("<ApiKey>");
-
-		var options = new ParallelOptions { CancellationToken = cancellationToken };
-
-		Parallel.For(1, 1000, options, (i, loopState) =>
+	    using (var client = new ServiceClient("<ApiKey>"))
 		{
-		    var movies = await client.Movies.GetTopRatedAsync(null, i, cancellationToken);
-		
-			foreach (Movie m in movies.Results)
+			for (int i = 1, count = 1000; i <= count; i++)
 			{
-				var movie = await client.Movies.GetAsync(m.Id, null, true, cancellationToken);
-		
-				var personIds = movie.Credits.Cast.Select(s => s.Id)
-					.Union(movie.Credits.Crew.Select(s => s.Id));
-		
-				Parallel.ForEach(personIds, options, async id =>
+			    var movies = await client.Movies.GetTopRatedAsync(null, i, cancellationToken);
+				count == movies.PageCount; // keep track of the actual page count
+			
+				foreach (Movie m in movies.Results)
 				{
-					var person = await client.People.GetAsync(id, true, cancellationToken);
-		
-					Parallel.ForEach(person.Images.Results, async img =>
+					var movie = await client.Movies.GetAsync(m.Id, null, true, cancellationToken);
+			
+					var personIds = movie.Credits.Cast.Select(s => s.Id)
+						.Union(movie.Credits.Crew.Select(s => s.Id));
+			
+					foreach (var id in personIds)
 					{
-						string filepath = Path.Combine("People", img.FilePath.TrimStart('/'));
-						await DownloadImage(img.FilePath, filepath, cancellationToken);
-					});
-				});
+						var person = await client.People.GetAsync(id, true, cancellationToken);
+			
+						foreach (var img in person.Images.Results)
+						{
+							string filepath = Path.Combine("People", img.FilePath.TrimStart('/'));
+							await DownloadImage(img.FilePath, filepath, cancellationToken);
+						}
+					}
+				}
 			}
-			if (i == movies.PageCount)
-				loopState.Break();
-		});
+		}
 	}
 
     static async Task DownloadImage(string filename, string localpath, CancellationToken cancellationToken)
