@@ -10,20 +10,11 @@
         <projectUrl>https://github.com/miguelhasse/Net.TMDb</projectUrl>
         <iconUrl>https://d3a8mw37cqal2z.cloudfront.net/assets/22f/images/logos/var_8_0_tmdb-logo-2_Bree.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>Client library for accessing the TMDb API in .NET, that is lightweight and simple to use.
-
-Supported Platforms:
-- .NET Framework 4.5
-- Windows 8
-- Windows Phone 8.1
-- Windows Phone Silverlight 8
-- Portable Class Libraries</description>
-        <summary>Client library for accessing the TMDb API in .NET</summary>
-        <releaseNotes>Added 'Review' methods
-Refactored a few class and property names</releaseNotes>
+        <description>Client library for accessing the TMDb API in .NET</description>
+        <releaseNotes>Model Bug Fixes</releaseNotes>
         <copyright>Copyright 2014 Miguel Hasse de Oliveira</copyright>
         <language>en-US</language>
-        <tags>TMDb PCL Portable Movie</tags>
+        <tags>TMDb</tags>
         <dependencies>
             <group targetFramework=".NETFramework4.5">
                 <dependency id="Newtonsoft.Json" version="6.0.3" />
