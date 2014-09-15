@@ -36,6 +36,6 @@ Refactored a few class and property names</releaseNotes>
     </metadata>
     <files>
         <file src="..\src\Hasseware.Net.TMDb\bin\Release\Hasseware.Net.TMDb.dll" target="lib\net45\Hasseware.Net.TMDb.dll" />
-        <file src="..\src\Hasseware.Net.TMDb.Portable\bin\Release\Hasseware.Net.TMDb.dll" target="lib\portable-net45+wp8+win8\Hasseware.Net.TMDb.dll" />
+        <file src="..\src\Hasseware.Net.TMDb.Portable\bin\Release\Hasseware.Net.TMDb.dll" target="lib\portable-net45+win8+wp8+wpa81\Hasseware.Net.TMDb.dll" />
     </files>
 </package>
