@@ -643,7 +643,7 @@ namespace System.Net.TMDb
 		public IEnumerable<Person> People { get; internal set; }
 
 		[DataMember(Name = "tv_results")]
-		public IEnumerable<Show> Series { get; internal set; }
+		public IEnumerable<Show> Shows { get; internal set; }
 	}
 
 	[DataContract]
