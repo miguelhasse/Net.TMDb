@@ -97,7 +97,7 @@ namespace System.Net.TMDb
 			{
 				{ "request_token", (await Deserialize<AuthenticationResult>(response)).Token },
 				{ "username", username },
-				{ "language", password }
+				{ "password", password }
 			};
 			response = await GetAsync("authentication/token/validate_with_login", parameters, cancellationToken).ConfigureAwait(false);
 			return (await Deserialize<AuthenticationResult>(response)).Token;
