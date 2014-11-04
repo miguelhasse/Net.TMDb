@@ -1,32 +1,44 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
-        <id>Hasseware.TheMovieDB</id>
-        <version>1.2.0.0</version>
-        <title>The Movie Database .NET Client</title>
-        <authors>Miguel Hasse de Oliveira</authors>
-        <owners>Miguel Hasse de Oliveira</owners>
-        <licenseUrl>https://github.com/miguelhasse/Net.TMDb/raw/master/LICENSE</licenseUrl>
-        <projectUrl>https://github.com/miguelhasse/Net.TMDb</projectUrl>
-        <iconUrl>https://d3a8mw37cqal2z.cloudfront.net/assets/22f/images/logos/var_8_0_tmdb-logo-2_Bree.png</iconUrl>
-        <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>Client library for accessing the TMDb API in .NET</description>
-        <releaseNotes>Model Bug Fixes</releaseNotes>
-        <copyright>Copyright 2014 Miguel Hasse de Oliveira</copyright>
-        <language>en-US</language>
-        <tags>TMDb</tags>
-        <dependencies>
-            <group targetFramework=".NETFramework4.5">
-                <dependency id="Newtonsoft.Json" version="6.0.3" />
-            </group>
-            <group targetFramework=".NETPortable0.0-net45+win8+wp8+wpa81">
-                <dependency id="Microsoft.Net.Http" version="2.2.22" />
-                <dependency id="Newtonsoft.Json" version="6.0.3" />
-            </group>
-        </dependencies>
+      <id>Hasseware.TheMovieDB</id>
+      <version>1.2.2.0</version>
+      <title>The Movie Database .NET Client</title>
+      <authors>Miguel Hasse de Oliveira</authors>
+      <owners>Miguel Hasse de Oliveira</owners>
+      <licenseUrl>https://github.com/miguelhasse/Net.TMDb/raw/master/LICENSE</licenseUrl>
+      <projectUrl>https://github.com/miguelhasse/Net.TMDb</projectUrl>
+      <iconUrl>https://d3a8mw37cqal2z.cloudfront.net/images/logos/var_7_0_tmdb-logo-2_Antitled.png</iconUrl>
+      <requireLicenseAcceptance>false</requireLicenseAcceptance>
+      <description>
+        Client library for accessing the TMDb API in .NET, that is lightweight and simple to use.
+
+        Supported Platforms:
+        - .NET Framework 4.5
+        - Windows 8
+        - Windows Phone 8.1
+        - Windows Phone Silverlight 8
+        - Portable Class Libraries
+      </description>
+      <summary>Client library for accessing the TMDb API in .NET</summary>
+      <releaseNotes>Included 'Account' related operations</releaseNotes>
+      <copyright>Copyright 2014 Miguel Hasse de Oliveira</copyright>
+      <language>en-US</language>
+      <tags>TMDb PCL Portable Movie</tags>
+      <dependencies>
+          <group targetFramework=".NETFramework4.5">
+              <dependency id="Newtonsoft.Json" version="6.0.6" />
+          </group>
+          <group targetFramework=".NETPortable0.0-net45+win8+wp8+wpa81">
+              <dependency id="Microsoft.Net.Http" version="2.2.28" />
+              <dependency id="Newtonsoft.Json" version="6.0.6" />
+          </group>
+      </dependencies>
     </metadata>
     <files>
-        <file src="..\src\Hasseware.Net.TMDb\bin\Release\Hasseware.Net.TMDb.dll" target="lib\net45\Hasseware.Net.TMDb.dll" />
-        <file src="..\src\Hasseware.Net.TMDb.Portable\bin\Release\Hasseware.Net.TMDb.dll" target="lib\portable-net45+wp8+win8\Hasseware.Net.TMDb.dll" />
+      <file src="..\src\Hasseware.Net.TMDb\bin\Release\Hasseware.Net.TMDb.dll" target="lib\net45\Hasseware.Net.TMDb.dll" />
+      <file src="..\src\Hasseware.Net.TMDb\bin\Release\Hasseware.Net.TMDb.xml" target="lib\net45\Hasseware.Net.TMDb.xml" />
+      <file src="..\src\Hasseware.Net.TMDb.Portable\bin\Release\Hasseware.Net.TMDb.dll" target="lib\portable-net45+wp8+win8\Hasseware.Net.TMDb.dll" />
+      <file src="..\src\Hasseware.Net.TMDb.Portable\bin\Release\Hasseware.Net.TMDb.xml" target="lib\portable-net45+wp8+win8\Hasseware.Net.TMDb.xml" />
     </files>
 </package>

@@ -3,6 +3,28 @@ using System.Runtime.Serialization;
 
 namespace System.Net.TMDb
 {
+    [DataContract]
+    public class Account
+    {
+        [DataMember(Name = "id")]
+        public int Id { get; internal set; }
+
+        [DataMember(Name = "include_adult")]
+        public bool IncludeAdult { get; internal set; }
+
+        [DataMember(Name = "iso_3166_1")]
+        public string CountryCode { get; internal set; }
+
+        [DataMember(Name = "iso_639_1")]
+        public string LanguageCode { get; internal set; }
+
+        [DataMember(Name = "name")]
+        public string Name { get; internal set; }
+
+        [DataMember(Name = "username")]
+        public string UserName { get; internal set; }
+    }
+
 	[DataContract]
 	public class ChangedItem
 	{
@@ -13,9 +35,9 @@ namespace System.Net.TMDb
 		public bool Adult { get; internal set; }
 	}
 
-    public class Changes : PagedResult<ChangedItem>
-    {
-    }
+	public class Changes : PagedResult<ChangedItem>
+	{
+	}
 
 	[DataContract]
 	public class Certification
@@ -27,12 +49,12 @@ namespace System.Net.TMDb
 		public string Meaning { get; internal set; }
 	}
 
-    [DataContract]
-    internal class Certifications
-    {
-        [DataMember(Name = "certifications")]
-        public IEnumerable<Certification> Results { get; internal set; }
-    }
+	[DataContract]
+	internal class Certifications
+	{
+		[DataMember(Name = "certifications")]
+		public IEnumerable<Certification> Results { get; internal set; }
+	}
 	
 	[DataContract]
 	public class Collection
@@ -470,9 +492,9 @@ namespace System.Net.TMDb
 
 	}
 
-    public class Movies : PagedResult<Movie>
-    {
-    }
+	public class Movies : PagedResult<Movie>
+	{
+	}
 
 
 	[DataContract]
@@ -496,7 +518,7 @@ namespace System.Net.TMDb
 	public class AlternativeTitle
 	{
 		[DataMember(Name = "iso_3166_1")]
-        public string CountryCode { get; internal set; }
+		public string CountryCode { get; internal set; }
 
 		[DataMember(Name = "title")]
 		public string Title { get; internal set; }
@@ -565,14 +587,14 @@ namespace System.Net.TMDb
 	public class Releases
 	{
 		[DataMember(Name = "countries")]
-        public IEnumerable<Release> Results { get; internal set; }
+		public IEnumerable<Release> Results { get; internal set; }
 	}
 
 	[DataContract]
 	public class Release
 	{
 		[DataMember(Name = "iso_3166_1")]
-        public string CountryCode { get; internal set; }
+		public string CountryCode { get; internal set; }
 
 		[DataMember(Name = "certification")]
 		public string Certification { get; internal set; }
@@ -643,7 +665,7 @@ namespace System.Net.TMDb
 		public IEnumerable<Person> People { get; internal set; }
 
 		[DataMember(Name = "tv_results")]
-		public IEnumerable<Show> Series { get; internal set; }
+		public IEnumerable<Show> Shows { get; internal set; }
 	}
 
 	[DataContract]
@@ -791,9 +813,9 @@ namespace System.Net.TMDb
 		public string Url { get; internal set; }
 	}
 
-    public class Reviews : PagedResult<Review>
-    {
-    }
+	public class Reviews : PagedResult<Review>
+	{
+	}
 
 	[DataContract]
 	public class List
@@ -816,19 +838,19 @@ namespace System.Net.TMDb
 		[DataMember(Name = "iso_639_1")]
 		public string LanguageCode { get; internal set; }
 
-        [DataMember(Name = "items")]
-        public IEnumerable<Movie> Movies { get; internal set; }
+		[DataMember(Name = "items")]
+		public IEnumerable<Movie> Movies { get; internal set; }
 
 		[DataMember(Name = "favorite_count")]
 		public int FavoriteCount { get; internal set; }
 
 		[DataMember(Name = "item_count")]
-        public int MovieCount { get; internal set; }
+		public int MovieCount { get; internal set; }
 	}
 
-    public class Lists : PagedResult<List>
-    {
-    }
+	public class Lists : PagedResult<List>
+	{
+	}
 
 	[DataContract]
 	public abstract class PagedResult<T>

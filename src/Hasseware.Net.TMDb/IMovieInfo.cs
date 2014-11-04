@@ -4,6 +4,35 @@ using System.Threading.Tasks;
 
 namespace System.Net.TMDb
 {
+	/*
+		public interface IAccountInfo
+		{
+			/// <summary>
+			/// Get the lists that you have created and marked as a favorite.
+			/// </summary>
+			Task<Lists> GetListsAsync(string session, int account, string language, int page, CancellationToken cancellationToken);
+
+			/// <summary>
+			/// Get the list of favorite, rated, or watchlist movies for an account.
+			/// </summary>
+			Task<Movies> ListAsync(string session, int account, AccountListType listType, string language, int page, CancellationToken cancellationToken);
+
+			/// <summary>
+			/// Get the list of favorite, rated, or watchlist TV series for an account.
+			/// </summary>
+			Task<Shows> ListAsync(string session, int account, AccountListType listType, string language, int page, CancellationToken cancellationToken);
+
+			/// <summary>
+			/// Add or remove a movie to an accounts favorite list.
+			/// </summary>
+			Task SetFavoriteAsync(string session, int account, string id, DataInfoType type, bool active, CancellationToken cancellationToken);
+
+			/// <summary>
+			/// Add or remove a movie to an accounts watch list.
+			/// </summary>
+			Task SetWatchlistAsync(string session, int account, string id, DataInfoType type, bool active, CancellationToken cancellationToken);
+		}
+	*/
 	public interface IMovieInfo
 	{
 		/// <summary>
@@ -105,7 +134,37 @@ namespace System.Net.TMDb
 		/// Get a list of movie ids that have been edited. The maximum number of days that can be returned in a single request is 14.
 		/// </summary>
 		Task<Changes> GetChangesAsync(DateTime? minimumDate, DateTime? maximumDate, int page, CancellationToken cancellationToken);
-	}
+
+        /// <summary>
+        /// Get the list of rated movies (and associated rating) for an account.
+        /// </summary>
+        Task<Movies> GetAccountRatedAsync(string session, string language, int page, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Get the list of favorite movies for an account.
+        /// </summary>
+        Task<Movies> GetFavoritedAsync(string session, string language, int page, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Get the list of movies on an accounts watchlist.
+        /// </summary>
+        Task<Movies> GetWatchlistAsync(string session, string language, int page, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// This method lets users rate a movie. A valid session id or guest session id is required.
+        /// </summary>
+        Task<bool> SetRatingAsync(string session, int id, decimal value, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Add or remove a movie to an accounts favorite list.
+        /// </summary>
+        Task<bool> SetFavoriteAsync(string session, int id, bool value, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Add or remove a movie to an accounts watch list.
+        /// </summary>
+        Task<bool> SetWatchlistAsync(string session, int id, bool value, CancellationToken cancellationToken);
+    }
 
 	public interface IShowInfo
 	{
@@ -184,7 +243,42 @@ namespace System.Net.TMDb
 		/// This method is used to retrieve the basic information about a TV network. You can use this ID to search for TV shows with the discover. 
 		/// </summary>
 		Task<string> GetNetworkAsync(int id, CancellationToken cancellationToken);
-	}
+
+        /// <summary>
+        /// Get the list of rated TV shows (and associated rating) for an account.
+        /// </summary>
+        Task<Shows> GetAccountRatedAsync(string session, string language, int page, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Get the list of favorite TV shows for an account.
+        /// </summary>
+        Task<Shows> GetFavoritedAsync(string session, string language, int page, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Get the list of TV shows on an accounts watchlist.
+        /// </summary>
+        Task<Shows> GetWatchlistAsync(string session, string language, int page, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// This method lets users rate a TV show. A valid session id or guest session id is required.
+        /// </summary>
+        Task<bool> SetRatingAsync(string session, int id, decimal value, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// This method lets users rate a TV episode. A valid session id or guest session id is required.
+        /// </summary>
+        Task<bool> SetRatingAsync(string session, int id, int season, int episode, decimal value, CancellationToken cancellationToken);
+        
+        /// <summary>
+        /// Add or remove a TV show to an accounts favorite list.
+        /// </summary>
+        Task<bool> SetFavoriteAsync(string session, int id, bool value, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Add or remove a TV show to an accounts watch list.
+        /// </summary>
+        Task<bool> SetWatchlistAsync(string session, int id, bool value, CancellationToken cancellationToken);
+    }
 
 	public interface IGenreInfo
 	{
@@ -316,6 +410,11 @@ namespace System.Net.TMDb
 
 	public interface ISystemInfo
 	{
+        /// <summary>
+        /// Get the basic information for an account. You will need to have a valid session id.
+        /// </summary>
+        Task<Account> GetAccountAsync(string session, CancellationToken cancellationToken);
+
 		/// <summary>
 		/// Get the list of supported certifications for movie and/or tv shows.
 		/// </summary>
@@ -343,5 +442,12 @@ namespace System.Net.TMDb
 		Movie = 1,
 		Television = 2,
 		Combined = 3
+	}
+
+	public enum AccountListType
+	{
+		Favorite,
+		Rated,
+		Watchlist
 	}
 }
