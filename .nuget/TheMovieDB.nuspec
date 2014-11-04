@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
       <id>Hasseware.TheMovieDB</id>
-      <version>1.2.2.0</version>
+      <version>1.2.3.0</version>
       <title>The Movie Database .NET Client</title>
       <authors>Miguel Hasse de Oliveira</authors>
       <owners>Miguel Hasse de Oliveira</owners>
@@ -21,7 +21,10 @@
         - Portable Class Libraries
       </description>
       <summary>Client library for accessing the TMDb API in .NET</summary>
-      <releaseNotes>Included 'Account' related operations</releaseNotes>
+      <releaseNotes>
+        Included 'Account' related operations.
+        Refactored the FindAsync method.
+      </releaseNotes>
       <copyright>Copyright 2014 Miguel Hasse de Oliveira</copyright>
       <language>en-US</language>
       <tags>TMDb PCL Portable Movie</tags>

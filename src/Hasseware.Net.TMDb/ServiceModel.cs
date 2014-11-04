@@ -3,27 +3,34 @@ using System.Runtime.Serialization;
 
 namespace System.Net.TMDb
 {
-    [DataContract]
-    public class Account
-    {
-        [DataMember(Name = "id")]
-        public int Id { get; internal set; }
+	[DataContract]
+	public abstract class Resource
+	{
+		[DataMember(Name = "id")]
+		public int Id { get; internal set; }
+	}
 
-        [DataMember(Name = "include_adult")]
-        public bool IncludeAdult { get; internal set; }
+	[DataContract]
+	public class Account
+	{
+		[DataMember(Name = "id")]
+		public int Id { get; internal set; }
 
-        [DataMember(Name = "iso_3166_1")]
-        public string CountryCode { get; internal set; }
+		[DataMember(Name = "include_adult")]
+		public bool IncludeAdult { get; internal set; }
 
-        [DataMember(Name = "iso_639_1")]
-        public string LanguageCode { get; internal set; }
+		[DataMember(Name = "iso_3166_1")]
+		public string CountryCode { get; internal set; }
 
-        [DataMember(Name = "name")]
-        public string Name { get; internal set; }
+		[DataMember(Name = "iso_639_1")]
+		public string LanguageCode { get; internal set; }
 
-        [DataMember(Name = "username")]
-        public string UserName { get; internal set; }
-    }
+		[DataMember(Name = "name")]
+		public string Name { get; internal set; }
+
+		[DataMember(Name = "username")]
+		public string UserName { get; internal set; }
+	}
 
 	[DataContract]
 	public class ChangedItem
@@ -150,11 +157,8 @@ namespace System.Net.TMDb
 	}
 
 	[DataContract]
-	public class Show
+	public class Show : Resource
 	{
-		[DataMember(Name = "id")]
-		public int Id { get; internal set; }
-
 		[DataMember(Name = "name")]
 		public string Name { get; internal set; }
 
@@ -241,11 +245,8 @@ namespace System.Net.TMDb
 	}
 
 	[DataContract]
-	public class Season
+	public class Season : Resource
 	{
-		[DataMember(Name = "id")]
-		public int Id { get; internal set; }
-
 		[DataMember(Name = "name")]
 		public string Name { get; internal set; }
 
@@ -278,11 +279,8 @@ namespace System.Net.TMDb
 	}
 
 	[DataContract]
-	public class Episode
+	public class Episode : Resource
 	{
-		[DataMember(Name = "id")]
-		public int Id { get; internal set; }
-
 		[DataMember(Name = "name")]
 		public string Name { get; internal set; }
 
@@ -395,11 +393,8 @@ namespace System.Net.TMDb
 	}
 
 	[DataContract]
-	public class Movie
+	public class Movie : Resource
 	{
-		[DataMember(Name = "id")]
-		public int Id { get; internal set; }
-
 		[DataMember(Name = "title")]
 		public string Title { get; internal set; }
 
@@ -656,24 +651,8 @@ namespace System.Net.TMDb
 	}
 
 	[DataContract]
-	public class FindResult
+	public class Person : Resource
 	{
-		[DataMember(Name = "movie_results")]
-		public IEnumerable<Movie> Movies { get; internal set; }
-
-		[DataMember(Name = "person_results")]
-		public IEnumerable<Person> People { get; internal set; }
-
-		[DataMember(Name = "tv_results")]
-		public IEnumerable<Show> Shows { get; internal set; }
-	}
-
-	[DataContract]
-	public class Person
-	{
-		[DataMember(Name = "id")]
-		public int Id { get; internal set; }
-
 		[DataMember(Name = "name")]
 		public string Name { get; internal set; }
 
@@ -866,6 +845,25 @@ namespace System.Net.TMDb
 
 		[DataMember(Name = "total_results")]
 		public int TotalCount { get; internal set; }
+	}
+
+	[DataContract]
+	internal class Resources
+	{
+		[DataMember(Name = "movie_results")]
+		public IEnumerable<Movie> Movies { get; internal set; }
+
+		[DataMember(Name = "person_results")]
+		public IEnumerable<Person> People { get; internal set; }
+
+		[DataMember(Name = "tv_results")]
+		public IEnumerable<Show> Shows { get; internal set; }
+
+		[DataMember(Name = "tv_season_results")]
+		public IEnumerable<Season> Seasons { get; internal set; }
+
+		[DataMember(Name = "tv_episode_results")]
+		public IEnumerable<Episode> Episodes { get; internal set; }
 	}
 
 	[DataContract]

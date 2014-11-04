@@ -4,43 +4,14 @@ using System.Threading.Tasks;
 
 namespace System.Net.TMDb
 {
-	/*
-		public interface IAccountInfo
-		{
-			/// <summary>
-			/// Get the lists that you have created and marked as a favorite.
-			/// </summary>
-			Task<Lists> GetListsAsync(string session, int account, string language, int page, CancellationToken cancellationToken);
-
-			/// <summary>
-			/// Get the list of favorite, rated, or watchlist movies for an account.
-			/// </summary>
-			Task<Movies> ListAsync(string session, int account, AccountListType listType, string language, int page, CancellationToken cancellationToken);
-
-			/// <summary>
-			/// Get the list of favorite, rated, or watchlist TV series for an account.
-			/// </summary>
-			Task<Shows> ListAsync(string session, int account, AccountListType listType, string language, int page, CancellationToken cancellationToken);
-
-			/// <summary>
-			/// Add or remove a movie to an accounts favorite list.
-			/// </summary>
-			Task SetFavoriteAsync(string session, int account, string id, DataInfoType type, bool active, CancellationToken cancellationToken);
-
-			/// <summary>
-			/// Add or remove a movie to an accounts watch list.
-			/// </summary>
-			Task SetWatchlistAsync(string session, int account, string id, DataInfoType type, bool active, CancellationToken cancellationToken);
-		}
-	*/
 	public interface IMovieInfo
 	{
-		/// <summary>
-		/// The find method makes it easy to search for objects in our database by an external id. For instance, an IMDB ID. This will search all objects (movies, TV shows and people) and return the results in a single response. TV season and TV episode searches will be supported shortly.
-		/// </summary>
-		Task<FindResult> FindAsync(string id, string externalSource, CancellationToken cancellationToken);
+        /// <summary>
+        /// Get the basic movie information for a specific movie id.
+        /// </summary>
+        Task<Movie> GetAsync(int id, string language, bool appendAll, CancellationToken cancellationToken);
 
-		/// <summary>
+        /// <summary>
 		/// Search for movies by title.
 		/// </summary>
 		Task<Movies> SearchAsync(string query, string language, bool includeAdult, int page, CancellationToken cancellationToken);
@@ -49,11 +20,6 @@ namespace System.Net.TMDb
 		/// Discover movies by different types of data like average rating, number of votes, genres and certifications. You can get a valid list of certifications from the /certifications method.
 		/// </summary>
 		Task<Movies> DiscoverAsync(string language, bool includeAdult, int? year, DateTime? minimumDate, DateTime? maximumDate, int? voteCount, decimal? voteAverage, string genres, string companies, int page, CancellationToken cancellationToken);
-
-		/// <summary>
-		/// Get the basic movie information for a specific movie id.
-		/// </summary>
-		Task<Movie> GetAsync(int id, string language, bool appendAll, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Get the images (posters and backdrops) for a specific movie id.
@@ -300,15 +266,15 @@ namespace System.Net.TMDb
 		/// </summary>
 		Task<Collection> GetAsync(int id, string language, bool appendAll, CancellationToken cancellationToken);
 
+        /// <summary>
+        /// Search for collections by name.
+        /// </summary>
+        Task<Collections> SearchAsync(string query, string language, int page, CancellationToken cancellationToken);
+
 		/// <summary>
 		/// Get all of the images for a particular collection by collection id.
 		/// </summary>
 		Task<Images> GetImagesAsync(int id, string language, CancellationToken cancellationToken);
-
-		/// <summary>
-		/// Search for collections by name.
-		/// </summary>
-		Task<Collections> SearchAsync(string query, string language, int page, CancellationToken cancellationToken);
 	}
 	
 	public interface ICompanyInfo
@@ -318,15 +284,15 @@ namespace System.Net.TMDb
 		/// </summary>
 		Task<Company> GetAsync(int id, CancellationToken cancellationToken);
 
+        /// <summary>
+        /// Search for companies by name.
+        /// </summary>
+        Task<Companies> SearchAsync(string query, int page, CancellationToken cancellationToken);
+
 		/// <summary>
 		/// Get the list of movies associated with a particular company.
 		/// </summary>
 		Task<Movies> GetMoviesAsync(int id, string language, int page, CancellationToken cancellationToken);
-
-		/// <summary>
-		/// Search for companies by name.
-		/// </summary>
-		Task<Companies> SearchAsync(string query, int page, CancellationToken cancellationToken);
 	}
 
 	public interface IPeopleInfo
@@ -335,6 +301,11 @@ namespace System.Net.TMDb
 		/// Get the general person information for a specific id.
 		/// </summary>
 		Task<Person> GetAsync(int id, bool appendAll, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Search for people by name.
+        /// </summary>
+        Task<People> SearchAsync(string query, bool includeAdult, int page, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Get the movie credits for a specific person id.
@@ -350,11 +321,6 @@ namespace System.Net.TMDb
 		/// Get the external ids for a specific person id.
 		/// </summary>
 		Task<ExternalIds> GetIdsAsync(int id, CancellationToken cancellationToken);
-
-		/// <summary>
-		/// Search for people by name.
-		/// </summary>
-		Task<People> SearchAsync(string query, bool includeAdult, int page, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Get a list of people ids that have been edited. The maximum number of days that can be returned in a single request is 14.

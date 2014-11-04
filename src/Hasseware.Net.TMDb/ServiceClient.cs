@@ -127,6 +127,39 @@ namespace System.Net.TMDb
 
 		#endregion
 
+		#region General Resource Search
+
+		/// <summary>
+		/// The find method makes it easy to search for objects in our database by an external id. For instance, an IMDB ID.
+		/// This will search all objects (movies, TV shows and people) and return the results in a single response.
+		/// </summary>
+		/// <remarks>
+		/// The supported external sources for each object are as follows:
+		/// <list type="bullet">
+		/// <item><description>Movies: imdb_id</description></item>
+		/// <item><description>People: imdb_id, freebase_mid, freebase_id, tvrage_id</description></item>
+		/// <item><description>TV Series: imdb_id, freebase_mid, freebase_id, tvdb_id, tvrage_id</description></item>
+		/// <item><description>TV Seasons: freebase_mid, freebase_id, tvdb_id, tvrage_id</description></item>
+		/// <item><description>TV Episodes: imdb_id, freebase_mid, freebase_id, tvdb_id, tvrage_id</description></item>
+		/// </list>
+		/// </remarks>
+		public async Task<IEnumerable<Resource>> FindAsync(string id, string externalSource, CancellationToken cancellationToken)
+		{
+			if (String.IsNullOrWhiteSpace(externalSource))
+				throw new ArgumentNullException("externalSource", "A supported external source must be specified.");
+			if (String.IsNullOrWhiteSpace(id)) throw new ArgumentNullException("id");
+
+			string cmd = String.Format("find/{0}", id);
+			var parameters = new Dictionary<string, object> { { "external_source", externalSource } };
+			var response = await GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
+			var result = await Deserialize<Resources>(response);
+
+			return ((IEnumerable<Resource>)result.Movies).Concat(result.People)
+				.Concat(result.Shows).Concat(result.Seasons).Concat(result.Episodes);
+		}
+
+		#endregion
+
 		#region Request Handling Methods
 
 		private Task<HttpResponseMessage> GetAsync(string cmd, IDictionary<string, object> parameters, CancellationToken cancellationToken)
@@ -226,14 +259,6 @@ namespace System.Net.TMDb
 			internal MovieContext(ServiceClient client)
 			{
 				this.client = client;
-			}
-
-			public async Task<FindResult> FindAsync(string id, string externalSource, CancellationToken cancellationToken)
-			{
-				string cmd = String.Format("find/{0}", id);
-				var parameters = new Dictionary<string, object> { { "external_source", externalSource } };
-				var response = await client.GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<FindResult>(response);
 			}
 
 			public async Task<Movies> SearchAsync(string query, string language, bool includeAdult, int page, CancellationToken cancellationToken)
