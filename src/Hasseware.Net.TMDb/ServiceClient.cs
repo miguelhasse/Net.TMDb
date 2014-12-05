@@ -311,11 +311,12 @@ namespace System.Net.TMDb
 				return await Deserialize<Images>(response);
 			}
 
-			public async Task<MediaCredits> GetCreditsAsync(int id, CancellationToken cancellationToken)
+			public async Task<IEnumerable<MediaCredit>> GetCreditsAsync(int id, CancellationToken cancellationToken)
 			{
 				string cmd = String.Format("movie/{0}/credits", id);
 				var response = await client.GetAsync(cmd, null, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<MediaCredits>(response);
+				var result = await Deserialize<MediaCredits>(response);
+				return ((IEnumerable<MediaCredit>)result.Cast).Concat(result.Crew);
 			}
 
 			public async Task<IEnumerable<Video>> GetVideosAsync(int id, string language, CancellationToken cancellationToken)
@@ -565,11 +566,12 @@ namespace System.Net.TMDb
 				return await Deserialize<ExternalIds>(response);
 			}
 
-			public async Task<MediaCredits> GetCreditsAsync(int id, CancellationToken cancellationToken)
+			public async Task<IEnumerable<MediaCredit>> GetCreditsAsync(int id, CancellationToken cancellationToken)
 			{
 				string cmd = String.Format("tv/{0}/credits", id);
 				var response = await client.GetAsync(cmd, null, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<MediaCredits>(response);
+				var result = await Deserialize<MediaCredits>(response);
+				return ((IEnumerable<MediaCredit>)result.Cast).Concat(result.Crew);
 			}
 
 			public async Task<Images> GetImagesAsync(int id, int? season, int? episode, string language, CancellationToken cancellationToken)
@@ -837,7 +839,7 @@ namespace System.Net.TMDb
 				return await Deserialize<Person>(response);
 			}
 
-			public async Task<PersonCredits> GetCreditsAsync(int id, string language, DataInfoType type, CancellationToken cancellationToken)
+			public async Task<IEnumerable<PersonCredit>> GetCreditsAsync(int id, string language, DataInfoType type, CancellationToken cancellationToken)
 			{
 				var sb = new System.Text.StringBuilder();
 				sb.AppendFormat("person/{0}/", id);
@@ -851,7 +853,9 @@ namespace System.Net.TMDb
 				var parameters = new Dictionary<string, object> { { "language", language } };
 
 				var response = await client.GetAsync(sb.ToString(), parameters, cancellationToken).ConfigureAwait(false);
-				return await Deserialize<PersonCredits>(response);
+				var result = await Deserialize<PersonCredits>(response);
+
+				return ((IEnumerable<PersonCredit>)result.Cast).Concat(result.Crew);
 			}
 
 			public async Task<IEnumerable<Image>> GetImagesAsync(int id, CancellationToken cancellationToken)

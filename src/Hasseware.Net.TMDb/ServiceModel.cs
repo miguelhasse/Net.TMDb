@@ -491,7 +491,6 @@ namespace System.Net.TMDb
 	{
 	}
 
-
 	[DataContract]
 	public class Images
 	{
@@ -530,38 +529,36 @@ namespace System.Net.TMDb
 	}
 
 	[DataContract]
-	public class MediaCast
+	public abstract class MediaCredit
 	{
 		[DataMember(Name = "id")]
 		public int Id { get; internal set; }
 
+		[DataMember(Name = "credit_id")]
+		public string CreditId { get; internal set; }
+
 		[DataMember(Name = "name")]
 		public string Name { get; internal set; }
-
-		[DataMember(Name = "character")]
-		public string Character { get; internal set; }
 
 		[DataMember(Name = "profile_path")]
 		public string Profile { get; internal set; }
 	}
 
 	[DataContract]
-	public class MediaCrew
+	public class MediaCast : MediaCredit
 	{
-		[DataMember(Name = "id")]
-		public int Id { get; internal set; }
+		[DataMember(Name = "character")]
+		public string Character { get; internal set; }
+	}
 
-		[DataMember(Name = "name")]
-		public string Name { get; internal set; }
-
+	[DataContract]
+	public class MediaCrew : MediaCredit
+	{
 		[DataMember(Name = "department")]
 		public string Department { get; internal set; }
 
 		[DataMember(Name = "job")]
 		public string Job { get; internal set; }
-
-		[DataMember(Name = "profile_path")]
-		public string Profile { get; internal set; }
 	}
 
 	[DataContract]
@@ -708,16 +705,16 @@ namespace System.Net.TMDb
 	}
 
 	[DataContract]
-	public class PersonCast
+	public abstract class PersonCredit
 	{
 		[DataMember(Name = "id")]
 		public int Id { get; internal set; }
 
+		[DataMember(Name = "credit_id")]
+		public string CreditId { get; internal set; }
+
 		[DataMember(Name = "title")]
 		public string Title { get; internal set; }
-
-		[DataMember(Name = "character")]
-		public string Character { get; internal set; }
 
 		[DataMember(Name = "original_title")]
 		public string OriginalTitle { get; internal set; }
@@ -733,31 +730,20 @@ namespace System.Net.TMDb
 	}
 
 	[DataContract]
-	public class PersonCrew
+	public class PersonCast : PersonCredit
 	{
-		[DataMember(Name = "id")]
-		public int Id { get; internal set; }
+		[DataMember(Name = "character")]
+		public string Character { get; internal set; }
+	}
 
-		[DataMember(Name = "title")]
-		public string Title { get; internal set; }
-
-		[DataMember(Name = "original_title")]
-		public string OriginalTitle { get; internal set; }
-
+	[DataContract]
+	public class PersonCrew : PersonCredit
+	{
 		[DataMember(Name = "department")]
 		public string Department { get; internal set; }
 
 		[DataMember(Name = "job")]
 		public string Job { get; internal set; }
-
-		[DataMember(Name = "poster_path")]
-		public string Poster { get; internal set; }
-
-		[DataMember(Name = "release_date")]
-		public DateTime? ReleaseDate { get; internal set; }
-
-		[DataMember(Name = "adult")]
-		public bool Adult { get; internal set; }
 	}
 
 	public class People : PagedResult<Person>

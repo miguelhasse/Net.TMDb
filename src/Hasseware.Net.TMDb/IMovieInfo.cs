@@ -6,12 +6,12 @@ namespace System.Net.TMDb
 {
 	public interface IMovieInfo
 	{
-        /// <summary>
-        /// Get the basic movie information for a specific movie id.
-        /// </summary>
-        Task<Movie> GetAsync(int id, string language, bool appendAll, CancellationToken cancellationToken);
+		/// <summary>
+		/// Get the basic movie information for a specific movie id.
+		/// </summary>
+		Task<Movie> GetAsync(int id, string language, bool appendAll, CancellationToken cancellationToken);
 
-        /// <summary>
+		/// <summary>
 		/// Search for movies by title.
 		/// </summary>
 		Task<Movies> SearchAsync(string query, string language, bool includeAdult, int page, CancellationToken cancellationToken);
@@ -39,7 +39,7 @@ namespace System.Net.TMDb
 		/// <summary>
 		/// Get the cast and crew information for a specific movie id.
 		/// </summary>
-		Task<MediaCredits> GetCreditsAsync(int id, CancellationToken cancellationToken);
+		Task<IEnumerable<MediaCredit>> GetCreditsAsync(int id, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Get the videos (trailers, teasers, clips, etc...) for a specific movie id.
@@ -101,36 +101,36 @@ namespace System.Net.TMDb
 		/// </summary>
 		Task<Changes> GetChangesAsync(DateTime? minimumDate, DateTime? maximumDate, int page, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Get the list of rated movies (and associated rating) for an account.
-        /// </summary>
-        Task<Movies> GetAccountRatedAsync(string session, string language, int page, CancellationToken cancellationToken);
+		/// <summary>
+		/// Get the list of rated movies (and associated rating) for an account.
+		/// </summary>
+		Task<Movies> GetAccountRatedAsync(string session, string language, int page, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Get the list of favorite movies for an account.
-        /// </summary>
-        Task<Movies> GetFavoritedAsync(string session, string language, int page, CancellationToken cancellationToken);
+		/// <summary>
+		/// Get the list of favorite movies for an account.
+		/// </summary>
+		Task<Movies> GetFavoritedAsync(string session, string language, int page, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Get the list of movies on an accounts watchlist.
-        /// </summary>
-        Task<Movies> GetWatchlistAsync(string session, string language, int page, CancellationToken cancellationToken);
+		/// <summary>
+		/// Get the list of movies on an accounts watchlist.
+		/// </summary>
+		Task<Movies> GetWatchlistAsync(string session, string language, int page, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// This method lets users rate a movie. A valid session id or guest session id is required.
-        /// </summary>
-        Task<bool> SetRatingAsync(string session, int id, decimal value, CancellationToken cancellationToken);
+		/// <summary>
+		/// This method lets users rate a movie. A valid session id or guest session id is required.
+		/// </summary>
+		Task<bool> SetRatingAsync(string session, int id, decimal value, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Add or remove a movie to an accounts favorite list.
-        /// </summary>
-        Task<bool> SetFavoriteAsync(string session, int id, bool value, CancellationToken cancellationToken);
+		/// <summary>
+		/// Add or remove a movie to an accounts favorite list.
+		/// </summary>
+		Task<bool> SetFavoriteAsync(string session, int id, bool value, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Add or remove a movie to an accounts watch list.
-        /// </summary>
-        Task<bool> SetWatchlistAsync(string session, int id, bool value, CancellationToken cancellationToken);
-    }
+		/// <summary>
+		/// Add or remove a movie to an accounts watch list.
+		/// </summary>
+		Task<bool> SetWatchlistAsync(string session, int id, bool value, CancellationToken cancellationToken);
+	}
 
 	public interface IShowInfo
 	{
@@ -167,7 +167,7 @@ namespace System.Net.TMDb
 		/// <summary>
 		/// Get the cast & crew information about a TV series. Just like the website, we pull this information from the last season of the series.
 		/// </summary>
-		Task<MediaCredits> GetCreditsAsync(int id, CancellationToken cancellationToken);
+		Task<IEnumerable<MediaCredit>> GetCreditsAsync(int id, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Get the images (episode stills) for a TV series by id, TV season by its season number, or TV episode by combination of a season and episode number.
@@ -210,41 +210,41 @@ namespace System.Net.TMDb
 		/// </summary>
 		Task<string> GetNetworkAsync(int id, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Get the list of rated TV shows (and associated rating) for an account.
-        /// </summary>
-        Task<Shows> GetAccountRatedAsync(string session, string language, int page, CancellationToken cancellationToken);
+		/// <summary>
+		/// Get the list of rated TV shows (and associated rating) for an account.
+		/// </summary>
+		Task<Shows> GetAccountRatedAsync(string session, string language, int page, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Get the list of favorite TV shows for an account.
-        /// </summary>
-        Task<Shows> GetFavoritedAsync(string session, string language, int page, CancellationToken cancellationToken);
+		/// <summary>
+		/// Get the list of favorite TV shows for an account.
+		/// </summary>
+		Task<Shows> GetFavoritedAsync(string session, string language, int page, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Get the list of TV shows on an accounts watchlist.
-        /// </summary>
-        Task<Shows> GetWatchlistAsync(string session, string language, int page, CancellationToken cancellationToken);
+		/// <summary>
+		/// Get the list of TV shows on an accounts watchlist.
+		/// </summary>
+		Task<Shows> GetWatchlistAsync(string session, string language, int page, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// This method lets users rate a TV show. A valid session id or guest session id is required.
-        /// </summary>
-        Task<bool> SetRatingAsync(string session, int id, decimal value, CancellationToken cancellationToken);
+		/// <summary>
+		/// This method lets users rate a TV show. A valid session id or guest session id is required.
+		/// </summary>
+		Task<bool> SetRatingAsync(string session, int id, decimal value, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// This method lets users rate a TV episode. A valid session id or guest session id is required.
-        /// </summary>
-        Task<bool> SetRatingAsync(string session, int id, int season, int episode, decimal value, CancellationToken cancellationToken);
-        
-        /// <summary>
-        /// Add or remove a TV show to an accounts favorite list.
-        /// </summary>
-        Task<bool> SetFavoriteAsync(string session, int id, bool value, CancellationToken cancellationToken);
+		/// <summary>
+		/// This method lets users rate a TV episode. A valid session id or guest session id is required.
+		/// </summary>
+		Task<bool> SetRatingAsync(string session, int id, int season, int episode, decimal value, CancellationToken cancellationToken);
+		
+		/// <summary>
+		/// Add or remove a TV show to an accounts favorite list.
+		/// </summary>
+		Task<bool> SetFavoriteAsync(string session, int id, bool value, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Add or remove a TV show to an accounts watch list.
-        /// </summary>
-        Task<bool> SetWatchlistAsync(string session, int id, bool value, CancellationToken cancellationToken);
-    }
+		/// <summary>
+		/// Add or remove a TV show to an accounts watch list.
+		/// </summary>
+		Task<bool> SetWatchlistAsync(string session, int id, bool value, CancellationToken cancellationToken);
+	}
 
 	public interface IGenreInfo
 	{
@@ -266,10 +266,10 @@ namespace System.Net.TMDb
 		/// </summary>
 		Task<Collection> GetAsync(int id, string language, bool appendAll, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Search for collections by name.
-        /// </summary>
-        Task<Collections> SearchAsync(string query, string language, int page, CancellationToken cancellationToken);
+		/// <summary>
+		/// Search for collections by name.
+		/// </summary>
+		Task<Collections> SearchAsync(string query, string language, int page, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Get all of the images for a particular collection by collection id.
@@ -284,10 +284,10 @@ namespace System.Net.TMDb
 		/// </summary>
 		Task<Company> GetAsync(int id, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Search for companies by name.
-        /// </summary>
-        Task<Companies> SearchAsync(string query, int page, CancellationToken cancellationToken);
+		/// <summary>
+		/// Search for companies by name.
+		/// </summary>
+		Task<Companies> SearchAsync(string query, int page, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Get the list of movies associated with a particular company.
@@ -302,15 +302,15 @@ namespace System.Net.TMDb
 		/// </summary>
 		Task<Person> GetAsync(int id, bool appendAll, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Search for people by name.
-        /// </summary>
-        Task<People> SearchAsync(string query, bool includeAdult, int page, CancellationToken cancellationToken);
+		/// <summary>
+		/// Search for people by name.
+		/// </summary>
+		Task<People> SearchAsync(string query, bool includeAdult, int page, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Get the movie credits for a specific person id.
 		/// </summary>
-		Task<PersonCredits> GetCreditsAsync(int id, string language, DataInfoType type, CancellationToken cancellationToken);
+		Task<IEnumerable<PersonCredit>> GetCreditsAsync(int id, string language, DataInfoType type, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Get the images for a specific person id.
@@ -376,10 +376,10 @@ namespace System.Net.TMDb
 
 	public interface ISystemInfo
 	{
-        /// <summary>
-        /// Get the basic information for an account. You will need to have a valid session id.
-        /// </summary>
-        Task<Account> GetAccountAsync(string session, CancellationToken cancellationToken);
+		/// <summary>
+		/// Get the basic information for an account. You will need to have a valid session id.
+		/// </summary>
+		Task<Account> GetAccountAsync(string session, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Get the list of supported certifications for movie and/or tv shows.
