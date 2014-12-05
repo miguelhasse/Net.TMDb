@@ -8,7 +8,7 @@
       <owners>Miguel Hasse de Oliveira</owners>
       <licenseUrl>https://github.com/miguelhasse/Net.TMDb/raw/master/LICENSE</licenseUrl>
       <projectUrl>https://github.com/miguelhasse/Net.TMDb</projectUrl>
-      <iconUrl>https://raw.githubusercontent.com/miguelhasse/Net.TMDb/master/.nuget/Package.ico</iconUrl>
+      <iconUrl>https://github.com/miguelhasse/Net.TMDb/raw/master/.nuget/Package.png</iconUrl>
       <requireLicenseAcceptance>false</requireLicenseAcceptance>
       <description>
         Client library for accessing the TMDb API in .NET, that is lightweight and simple to use.
