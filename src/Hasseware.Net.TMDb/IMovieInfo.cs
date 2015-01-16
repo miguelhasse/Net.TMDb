@@ -149,6 +149,11 @@ namespace System.Net.TMDb
 		/// </summary>
 		Task<Show> GetAsync(int id, string language, bool appendAll, CancellationToken cancellationToken);
 
+        /// <summary>
+        /// Get the latest TV show id.
+        /// </summary>
+        Task<Show> GetLatestAsync(CancellationToken cancellationToken);
+
 		/// <summary>
 		/// Get the primary information about a TV season by its season number.
 		/// </summary>
@@ -189,6 +194,16 @@ namespace System.Net.TMDb
 		/// Get the list of translations that exist for a TV series. These translations cascade down to the episode level.
 		/// </summary>
 		Task<IEnumerable<Translation>> GetTranslationsAsync(int id, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Get the list of TV shows that are currently on the air. This query looks for any TV show that has an episode with an air date in the next 7 days.
+        /// </summary>
+        Task<Shows> GetOnAirAsync(string language, int page, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Get the list of TV shows that air today. Without a specified timezone, this query defaults to EST (Eastern Time UTC-05:00).
+        /// </summary>
+        Task<Shows> GetAiringAsync(string language, int page, string timezone, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Get the list of popular TV shows. This list refreshes every day.

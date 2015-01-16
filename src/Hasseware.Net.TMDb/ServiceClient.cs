@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -18,6 +19,8 @@ namespace System.Net.TMDb
 		private readonly HttpClient client;
 		private bool disposed = false;
 
+		private static readonly JsonSerializerSettings jsonSettings;
+		
 		#region Constructors
 
 		public ServiceClient(string apiKey)
@@ -43,6 +46,14 @@ namespace System.Net.TMDb
 			this.Lists = new ListContext(this);
 			this.Reviews = new ReviewContext(this);
 			this.Settings = new SystemContext(this);
+		}
+
+		static ServiceClient()
+		{
+			ServiceClient.jsonSettings = new JsonSerializerSettings
+			{
+				Error = new EventHandler<ErrorEventArgs>((s, e) => OnSerializationError(e))
+			};
 		}
 
 		#endregion
@@ -188,7 +199,7 @@ namespace System.Net.TMDb
 #if DEBUG
 			System.Diagnostics.Debug.WriteLine(responseJson);
 #endif
-			return JsonConvert.DeserializeObject<T>(responseJson);
+			return JsonConvert.DeserializeObject<T>(responseJson, jsonSettings);
 		}
 
 		private static async Task<dynamic> DeserializeDynamic(HttpResponseMessage response)
@@ -197,7 +208,7 @@ namespace System.Net.TMDb
 #if DEBUG
 			System.Diagnostics.Debug.WriteLine(responseJson);
 #endif
-			return JsonConvert.DeserializeObject(responseJson);
+			return JsonConvert.DeserializeObject(responseJson, jsonSettings);
 		}
 
 		private static void HandleResponseCompletion(Task<HttpResponseMessage> task, TaskCompletionSource<HttpResponseMessage> tcs)
@@ -246,6 +257,16 @@ namespace System.Net.TMDb
 			if (t == typeof(DateTime)) return ((DateTime)value).ToString("yyyy-MM-dd");
 			else if (t == typeof(Decimal)) return ((Decimal)value).ToString(CultureInfo.InvariantCulture);
 			else return Uri.EscapeDataString(value.ToString());
+		}
+
+		#endregion
+
+		#region Serialization Event Handlers
+
+		private static void OnSerializationError(Newtonsoft.Json.Serialization.ErrorEventArgs args)
+		{
+			System.Diagnostics.Debug.WriteLine(args.ErrorContext.Error.Message);
+			args.ErrorContext.Handled = true;
 		}
 
 		#endregion
@@ -531,6 +552,12 @@ namespace System.Net.TMDb
 				return await Deserialize<Show>(response);
 			}
 
+			public async Task<Show> GetLatestAsync(CancellationToken cancellationToken)
+			{
+				var response = await client.GetAsync("tv/latest", null, cancellationToken).ConfigureAwait(false);
+				return await Deserialize<Show>(response);
+			}
+
 			public async Task<Season> GetSeasonAsync(int id, int season, string language, bool appendAll, CancellationToken cancellationToken)
 			{
 				string cmd = String.Format("tv/{0}/season/{1}", id, season);
@@ -621,6 +648,20 @@ namespace System.Net.TMDb
 				string cmd = String.Format("tv/{0}/translations", id);
 				var response = await client.GetAsync(cmd, null, cancellationToken).ConfigureAwait(false);
 				return (await Deserialize<Translations>(response)).Results;
+			}
+
+			public async Task<Shows> GetOnAirAsync(string language, int page, CancellationToken cancellationToken)
+			{
+				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
+				var response = await client.GetAsync("tv/on_the_air ", parameters, cancellationToken).ConfigureAwait(false);
+				return await Deserialize<Shows>(response);
+			}
+
+			public async Task<Shows> GetAiringAsync(string language, int page, string timezone, CancellationToken cancellationToken)
+			{
+				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language }, { "timezone", timezone } };
+				var response = await client.GetAsync("tv/airing_today", parameters, cancellationToken).ConfigureAwait(false);
+				return await Deserialize<Shows>(response);
 			}
 
 			public async Task<Shows> GetPopularAsync(string language, int page, CancellationToken cancellationToken)

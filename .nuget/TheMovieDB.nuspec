@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
       <id>Hasseware.TheMovieDB</id>
-      <version>1.2.4.0</version>
+      <version>1.2.5.0</version>
       <title>The Movie Database .NET Client</title>
       <authors>Miguel Hasse de Oliveira</authors>
       <owners>Miguel Hasse de Oliveira</owners>
@@ -22,8 +22,8 @@
       </description>
       <summary>Client library for accessing the TMDb API in .NET</summary>
       <releaseNotes>
-        Included 'Account' related operations.
-        Refactored the FindAsync method.
+        Episode.ProductionCode type changed from int to string.
+        Included new TV show methods (accessible in interface IShowInfo).
       </releaseNotes>
       <copyright>Copyright 2014 Miguel Hasse de Oliveira</copyright>
       <language>en-US</language>

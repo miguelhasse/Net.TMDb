@@ -291,7 +291,7 @@ namespace System.Net.TMDb
 		public string Backdrop { get; internal set; }
 
 		[DataMember(Name = "production_code")]
-		public int? ProductionCode { get; internal set; }
+		public string ProductionCode { get; internal set; }
 
 		[DataMember(Name = "air_date")]
 		public DateTime? AirDate { get; internal set; }
