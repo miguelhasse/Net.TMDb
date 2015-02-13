@@ -239,9 +239,11 @@ namespace System.Net.TMDb
 
 			if (parameters != null)
 			{
-				sb.Append(parameters.Where(s => s.Value != null)
-					.Select(s => String.Concat(s.Key, "=", ConvertParameterValue(s.Value)))
-					.Aggregate((s, n) => String.Concat(s, "&", n)));
+				var queryParams = parameters.Where(s => s.Value != null)
+					.Select(s => String.Concat(s.Key, "=", ConvertParameterValue(s.Value)));
+
+                if (queryParams.Count() > 0)
+                    sb.Append(queryParams.Aggregate((s, n) => String.Concat(s, "&", n)));
 			}
 #if DEBUG
 			System.Diagnostics.Debug.WriteLine(sb);
