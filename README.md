@@ -2,6 +2,13 @@
 
 Implements asynchronous operations and includes support for portable class libraries.
 
+## Available on NuGet Gallery
+
+To install the [Hasseware.TheMovieDB](https://www.nuget.org/packages/Hasseware.TheMovieDB) package,
+run the following command in the [Package Manager Console](http://docs.nuget.org/docs/start-here/using-the-package-manager-console)
+
+    PM> Install-Package Hasseware.TheMovieDB
+    
 ### Usage samples ###
 
 	static async Task Sample(CancellationToken cancellationToken)
