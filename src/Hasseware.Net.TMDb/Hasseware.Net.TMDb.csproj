@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="IImageStorage.cs" />
     <Compile Include="IMovieInfo.cs" />
+    <Compile Include="Internal\ResourceCreationConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceClient.cs" />
     <Compile Include="ServiceModel.cs" />

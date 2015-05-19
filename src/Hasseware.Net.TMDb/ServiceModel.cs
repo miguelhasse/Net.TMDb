@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.Serialization;
 
+#pragma warning disable 1591
+
 namespace System.Net.TMDb
 {
 	[DataContract]
@@ -9,6 +11,10 @@ namespace System.Net.TMDb
 		[DataMember(Name = "id")]
 		public int Id { get; internal set; }
 	}
+
+    public class Resources : PagedResult<Resource>
+    {
+    }
 
 	[DataContract]
 	public class Account
@@ -834,7 +840,7 @@ namespace System.Net.TMDb
 	}
 
 	[DataContract]
-	internal class Resources
+	internal class ResourceFindResult
 	{
 		[DataMember(Name = "movie_results")]
 		public IEnumerable<Movie> Movies { get; internal set; }
@@ -881,3 +887,5 @@ namespace System.Net.TMDb
 		public string Message { get; set; }
 	}
 }
+
+#pragma warning restore 1591

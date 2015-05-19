@@ -8,6 +8,8 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
+#pragma warning disable 1591
+
 namespace System.Net.TMDb
 {
 	/// <summary>
@@ -20,6 +22,7 @@ namespace System.Net.TMDb
 		private bool disposed = false;
 
 		private static readonly JsonSerializerSettings jsonSettings;
+        private static readonly string[] externalSources;
 		
 		#region Constructors
 
@@ -54,6 +57,8 @@ namespace System.Net.TMDb
 			{
 				Error = new EventHandler<ErrorEventArgs>((s, e) => OnSerializationError(e))
 			};
+            ServiceClient.jsonSettings.Converters.Add(new Internal.ResourceCreationConverter());
+            ServiceClient.externalSources = new string[] { "imdb_id", "freebase_id", "freebase_mid", "tvdb_id", "tvrage_id" };
 		}
 
 		#endregion
@@ -154,20 +159,39 @@ namespace System.Net.TMDb
 		/// <item><description>TV Episodes: imdb_id, freebase_mid, freebase_id, tvdb_id, tvrage_id</description></item>
 		/// </list>
 		/// </remarks>
-		public async Task<IEnumerable<Resource>> FindAsync(string id, string externalSource, CancellationToken cancellationToken)
+		public async Task<Resource> FindAsync(string id, string externalSource, CancellationToken cancellationToken)
 		{
-			if (String.IsNullOrWhiteSpace(externalSource))
+            if (String.IsNullOrWhiteSpace(id))
+                throw new ArgumentNullException("id");
+
+            if (String.IsNullOrWhiteSpace(externalSource) || !ServiceClient.externalSources.Contains(externalSource))
 				throw new ArgumentNullException("externalSource", "A supported external source must be specified.");
-			if (String.IsNullOrWhiteSpace(id)) throw new ArgumentNullException("id");
 
 			string cmd = String.Format("find/{0}", id);
 			var parameters = new Dictionary<string, object> { { "external_source", externalSource } };
 			var response = await GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
-			var result = await Deserialize<Resources>(response);
+            var result = await Deserialize<ResourceFindResult>(response);
 
 			return ((IEnumerable<Resource>)result.Movies).Concat(result.People)
-				.Concat(result.Shows).Concat(result.Seasons).Concat(result.Episodes);
+				.Concat(result.Shows).Concat(result.Seasons).Concat(result.Episodes)
+                .FirstOrDefault();
 		}
+
+        /// <summary>
+        /// Search the movie, tv show and person collections with a single query. Each mapped result is the same response you would get from each independent search.
+        /// </summary>
+        public async Task<Resources> SearchAsync(string query, string language, bool includeAdult, int page, CancellationToken cancellationToken)
+        {
+            var parameters = new Dictionary<string, object>
+			{
+				{ "query", query },
+				{ "page", page },
+				{ "include_adult", includeAdult },
+				{ "language", language }
+			};
+            var response = await GetAsync("search/multi", parameters, cancellationToken).ConfigureAwait(false);
+            return await Deserialize<Resources>(response);
+        }
 
 		#endregion
 
@@ -284,14 +308,15 @@ namespace System.Net.TMDb
 				this.client = client;
 			}
 
-			public async Task<Movies> SearchAsync(string query, string language, bool includeAdult, int page, CancellationToken cancellationToken)
+            public async Task<Movies> SearchAsync(string query, string language, bool includeAdult, int? year, int page, CancellationToken cancellationToken)
 			{
 				var parameters = new Dictionary<string, object>
 				{
 					{ "query", query },
 					{ "page", page },
 					{ "include_adult", includeAdult },
-					{ "language", language }
+					{ "language", language },
+                    { "year", year }
 				};
 				var response = await client.GetAsync("search/movie", parameters, cancellationToken).ConfigureAwait(false);
 				return await Deserialize<Movies>(response);
@@ -1085,3 +1110,5 @@ namespace System.Net.TMDb
 		public int StatusCode { get; private set; }
 	}
 }
+
+#pragma warning restore 1591

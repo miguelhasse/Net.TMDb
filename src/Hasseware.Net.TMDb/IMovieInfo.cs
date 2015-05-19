@@ -2,6 +2,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 
+#pragma warning disable 1591
+
 namespace System.Net.TMDb
 {
 	public interface IMovieInfo
@@ -14,7 +16,7 @@ namespace System.Net.TMDb
 		/// <summary>
 		/// Search for movies by title.
 		/// </summary>
-		Task<Movies> SearchAsync(string query, string language, bool includeAdult, int page, CancellationToken cancellationToken);
+        Task<Movies> SearchAsync(string query, string language, bool includeAdult, int? year, int page, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Discover movies by different types of data like average rating, number of votes, genres and certifications. You can get a valid list of certifications from the /certifications method.
@@ -170,7 +172,7 @@ namespace System.Net.TMDb
 		Task<ExternalIds> GetIdsAsync(int id, int? season, int? episode, CancellationToken cancellationToken);
 
 		/// <summary>
-		/// Get the cast & crew information about a TV series. Just like the website, we pull this information from the last season of the series.
+        /// Get the cast &amp; crew information about a TV series. Just like the website, we pull this information from the last season of the series.
 		/// </summary>
 		Task<IEnumerable<MediaCredit>> GetCreditsAsync(int id, CancellationToken cancellationToken);
 
@@ -432,3 +434,5 @@ namespace System.Net.TMDb
 		Watchlist
 	}
 }
+
+#pragma warning restore 1591
