@@ -41,33 +41,33 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\Hasseware.Net.TMDb\Development.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\Net.TMDb\Development.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
-    <None Include="..\Hasseware.Net.TMDb\Development.snk" />
+    <None Include="..\Net.TMDb\Development.snk" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Hasseware.Net.TMDb\IImageStorage.cs">
+    <Compile Include="..\Net.TMDb\IImageStorage.cs">
       <Link>IImageStorage.cs</Link>
     </Compile>
-    <Compile Include="..\Hasseware.Net.TMDb\IMovieInfo.cs">
+    <Compile Include="..\Net.TMDb\IMovieInfo.cs">
       <Link>IMovieInfo.cs</Link>
     </Compile>
-    <Compile Include="..\Hasseware.Net.TMDb\Internal\ResourceCreationConverter.cs">
+    <Compile Include="..\Net.TMDb\Internal\ResourceCreationConverter.cs">
       <Link>Internal\ResourceCreationConverter.cs</Link>
     </Compile>
-    <Compile Include="..\Hasseware.Net.TMDb\ServiceClient.cs">
+    <Compile Include="..\Net.TMDb\ServiceClient.cs">
       <Link>ServiceClient.cs</Link>
     </Compile>
-    <Compile Include="..\Hasseware.Net.TMDb\ServiceModel.cs">
+    <Compile Include="..\Net.TMDb\ServiceModel.cs">
       <Link>ServiceModel.cs</Link>
     </Compile>
-    <Compile Include="..\Hasseware.Net.TMDb\StorageClient.cs">
+    <Compile Include="..\Net.TMDb\StorageClient.cs">
       <Link>StorageClient.cs</Link>
     </Compile>
-    <Compile Include="..\Hasseware.Net.TMDb\Properties\AssemblyInfo.cs">
+    <Compile Include="..\Net.TMDb\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
   </ItemGroup>
