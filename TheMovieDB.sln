@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hasseware.Net.TMDb", "src\Hasseware.Net.TMDb\Hasseware.Net.TMDb.csproj", "{0DD87046-97FE-41C9-8FA9-EFA2C55B6129}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hasseware.Net.TMDb", "src\Net.TMDb\Hasseware.Net.TMDb.csproj", "{0DD87046-97FE-41C9-8FA9-EFA2C55B6129}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hasseware.Net.TMDb.Portable", "src\Hasseware.Net.TMDb.Portable\Hasseware.Net.TMDb.Portable.csproj", "{EF54ECE6-5A39-4AEB-BC0F-071D0D14BBD9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hasseware.Net.TMDb.Portable", "src\Net.TMDb.Portable\Hasseware.Net.TMDb.Portable.csproj", "{EF54ECE6-5A39-4AEB-BC0F-071D0D14BBD9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{2A40F79D-FCF4-4264-9334-906F8099F5DD}"
 	ProjectSection(SolutionItems) = preProject
