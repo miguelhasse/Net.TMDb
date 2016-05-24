@@ -38,9 +38,9 @@
       </dependencies>
     </metadata>
     <files>
-      <file src="..\src\Hasseware.Net.TMDb\bin\Release\Hasseware.Net.TMDb.dll" target="lib\net45\Hasseware.Net.TMDb.dll" />
-      <file src="..\src\Hasseware.Net.TMDb\bin\Release\Hasseware.Net.TMDb.xml" target="lib\net45\Hasseware.Net.TMDb.xml" />
-      <file src="..\src\Hasseware.Net.TMDb.Portable\bin\Release\Hasseware.Net.TMDb.dll" target="lib\portable-net45+wp8+win8\Hasseware.Net.TMDb.dll" />
-      <file src="..\src\Hasseware.Net.TMDb.Portable\bin\Release\Hasseware.Net.TMDb.xml" target="lib\portable-net45+wp8+win8\Hasseware.Net.TMDb.xml" />
+      <file src="..\src\Net.TMDb\bin\Release\Hasseware.Net.TMDb.dll" target="lib\net45\Hasseware.Net.TMDb.dll" />
+      <file src="..\src\Net.TMDb\bin\Release\Hasseware.Net.TMDb.xml" target="lib\net45\Hasseware.Net.TMDb.xml" />
+      <file src="..\src\Net.TMDb.Portable\bin\Release\Hasseware.Net.TMDb.dll" target="lib\portable-net45+wp8+win8\Hasseware.Net.TMDb.dll" />
+      <file src="..\src\Net.TMDb.Portable\bin\Release\Hasseware.Net.TMDb.xml" target="lib\portable-net45+wp8+win8\Hasseware.Net.TMDb.xml" />
     </files>
 </package>
