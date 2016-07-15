@@ -244,13 +244,13 @@ namespace System.Net.TMDb
 				{
 					task.Result.Content.ReadAsStringAsync().ContinueWith(t2 =>
 					{
-						var status = JsonConvert.DeserializeObject<Status>(t2.Result);
-						tcs.TrySetException(new ServiceRequestException((int)task.Result.StatusCode,
-							status.Code, status.Message));
+						dynamic status = JsonConvert.DeserializeObject(t2.Result);
+                        string message = (status.errors != null) ? String.Join(Environment.NewLine, status.errors) : status.status_message;
+                        tcs.TrySetException(new ServiceRequestException((int)task.Result.StatusCode, message));
 					});
 				}
 				else tcs.TrySetException(new ServiceRequestException(
-					(int)task.Result.StatusCode, -1, task.Result.ReasonPhrase));
+					(int)task.Result.StatusCode, task.Result.ReasonPhrase));
 			}
 			else if (task.IsFaulted) tcs.TrySetException(task.Exception);
 			else if (task.IsCompleted) tcs.TrySetResult(task.Result);
@@ -504,7 +504,7 @@ namespace System.Net.TMDb
 
 				var response = await client.SendAsync(cmd, parameters, new StringContent(content, null, "application/json"),
 					HttpMethod.Post, cancellationToken).ConfigureAwait(false);
-				return (await Deserialize<Status>(response)).Code == 12;
+				return (await DeserializeDynamic(response)).status_code == 12;
 			}
 
 			public async Task<bool> SetFavoriteAsync(string session, int id, bool value, CancellationToken cancellationToken)
@@ -515,7 +515,7 @@ namespace System.Net.TMDb
 
 				var response = await client.SendAsync(cmd, parameters, new StringContent(content, null, "application/json"),
 					HttpMethod.Post, cancellationToken).ConfigureAwait(false);
-				return (await Deserialize<Status>(response)).Code == 12;
+				return (await DeserializeDynamic(response)).status_code == 12;
 			}
 
 			public async Task<bool> SetWatchlistAsync(string session, int id, bool value, CancellationToken cancellationToken)
@@ -526,7 +526,7 @@ namespace System.Net.TMDb
 
 				var response = await client.SendAsync(cmd, parameters, new StringContent(content, null, "application/json"),
 					HttpMethod.Post, cancellationToken).ConfigureAwait(false);
-				return (await Deserialize<Status>(response)).Code == 12;
+				return (await DeserializeDynamic(response)).status_code == 12;
 			}
 		}
 
@@ -753,7 +753,7 @@ namespace System.Net.TMDb
 
 				var response = await client.SendAsync(cmd, parameters, new StringContent(content, null, "application/json"),
 					HttpMethod.Post, cancellationToken).ConfigureAwait(false);
-				return (await Deserialize<Status>(response)).Code == 1;
+				return (await DeserializeDynamic(response)).status_code == 1;
 			}
 
 			public async Task<bool> SetRatingAsync(string session, int id, int season, int episode, decimal value, CancellationToken cancellationToken)
@@ -764,7 +764,7 @@ namespace System.Net.TMDb
 
 				var response = await client.SendAsync(cmd, parameters, new StringContent(content, null, "application/json"),
 					HttpMethod.Post, cancellationToken).ConfigureAwait(false);
-				return (await Deserialize<Status>(response)).Code == 1;
+				return (await DeserializeDynamic(response)).status_code == 1;
 			}
 
 			public async Task<bool> SetFavoriteAsync(string session, int id, bool value, CancellationToken cancellationToken)
@@ -775,7 +775,7 @@ namespace System.Net.TMDb
 
 				var response = await client.SendAsync(cmd, parameters, new StringContent(content, null, "application/json"),
 					HttpMethod.Post, cancellationToken).ConfigureAwait(false);
-				return (await Deserialize<Status>(response)).Code == 12;
+				return (await DeserializeDynamic(response)).status_code == 12;
 			}
 
 			public async Task<bool> SetWatchlistAsync(string session, int id, bool value, CancellationToken cancellationToken)
@@ -786,7 +786,7 @@ namespace System.Net.TMDb
 
 				var response = await client.SendAsync(cmd, parameters, new StringContent(content, null, "application/json"),
 					HttpMethod.Post, cancellationToken).ConfigureAwait(false);
-				return (await Deserialize<Status>(response)).Code == 12;
+				return (await DeserializeDynamic(response)).status_code == 12;
 			}
 		}
 
@@ -1002,7 +1002,7 @@ namespace System.Net.TMDb
 
 				var response = await client.SendAsync(cmd, parameters, new StringContent(content, null, "application/json"),
 					HttpMethod.Post, cancellationToken).ConfigureAwait(false);
-				return (await Deserialize<Status>(response)).Code == 12;
+				return (await DeserializeDynamic(response)).status_code == 12;
 			}
 
 			public async Task<bool> RemoveAsync(string session, string id, string mediaId, CancellationToken cancellationToken)
@@ -1013,7 +1013,7 @@ namespace System.Net.TMDb
 
 				var response = await client.SendAsync(cmd, parameters, new StringContent(content, null, "application/json"),
 					HttpMethod.Post, cancellationToken).ConfigureAwait(false);
-				return (await Deserialize<Status>(response)).Code == 12;
+				return (await DeserializeDynamic(response)).status_code == 12;
 			}
 
 			public async Task<bool> ClearAsync(string session, string id, CancellationToken cancellationToken)
@@ -1021,7 +1021,7 @@ namespace System.Net.TMDb
 				string cmd = String.Format("list/{0}/clear", id);
 				var parameters = new Dictionary<string, object> { { "session_id", session }, { "confirm", "true" } };
 				var response = await client.SendAsync(cmd, parameters, null, HttpMethod.Post, cancellationToken).ConfigureAwait(false);
-				return (await Deserialize<Status>(response)).Code == 12;
+				return (await DeserializeDynamic(response)).status_code == 12;
 			}
 
 			public async Task<bool> DeleteAsync(string session, string id, CancellationToken cancellationToken)
@@ -1029,7 +1029,7 @@ namespace System.Net.TMDb
 				string cmd = String.Format("list/{0}", id);
 				var parameters = new Dictionary<string, object> { { "session_id", session } };
 				var response = await client.SendAsync(cmd, parameters, null, HttpMethod.Delete, cancellationToken).ConfigureAwait(false);
-				return (await Deserialize<Status>(response)).Code == 12;
+				return (await DeserializeDynamic(response)).status_code == 12;
 			}
 		}
 
@@ -1103,13 +1103,10 @@ namespace System.Net.TMDb
 
 	public sealed class ServiceRequestException : HttpRequestException
 	{
-		internal ServiceRequestException(int statusCode, int serviceCode, string message) : base(message)
+		internal ServiceRequestException(int statusCode, string message) : base(message)
 		{
 			this.StatusCode = statusCode;
-			this.ServiceCode = serviceCode;
 		}
-
-		public int ServiceCode { get; private set; }
 
 		public int StatusCode { get; private set; }
 	}

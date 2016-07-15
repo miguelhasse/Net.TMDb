@@ -12,9 +12,9 @@ namespace System.Net.TMDb
 		public int Id { get; internal set; }
 	}
 
-    public class Resources : PagedResult<Resource>
-    {
-    }
+	public class Resources : PagedResult<Resource>
+	{
+	}
 
 	[DataContract]
 	public class Account
@@ -875,16 +875,6 @@ namespace System.Net.TMDb
 
 		[DataMember(Name = "success")]
 		public bool Success  { get; set; }
-	}
-
-	[DataContract]
-	internal class Status
-	{
-		[DataMember(Name = "status_code")]
-		public int Code { get; set; }
-
-		[DataMember(Name = "status_message")]
-		public string Message { get; set; }
 	}
 }
 
