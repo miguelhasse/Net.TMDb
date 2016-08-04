@@ -1061,7 +1061,8 @@ namespace System.Net.TMDb
 
 			public async Task<Account> GetAccountAsync(string session, CancellationToken cancellationToken)
 			{
-				var response = await client.GetAsync("account", null, cancellationToken).ConfigureAwait(false);
+                var parameters = new Dictionary<string, object> { { "session_id", session }};
+                var response = await client.GetAsync("account", parameters, cancellationToken).ConfigureAwait(false);
 				return await Deserialize<Account>(response);
 			}
 
