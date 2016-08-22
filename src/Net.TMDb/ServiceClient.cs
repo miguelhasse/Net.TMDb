@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -22,7 +23,7 @@ namespace System.Net.TMDb
 		private bool disposed = false;
 
 		private static readonly JsonSerializerSettings jsonSettings;
-        private static readonly string[] externalSources;
+		private static readonly string[] externalSources;
 		
 		#region Constructors
 
@@ -57,8 +58,8 @@ namespace System.Net.TMDb
 			{
 				Error = new EventHandler<ErrorEventArgs>((s, e) => OnSerializationError(e))
 			};
-            ServiceClient.jsonSettings.Converters.Add(new Internal.ResourceCreationConverter());
-            ServiceClient.externalSources = new string[] { "imdb_id", "freebase_id", "freebase_mid", "tvdb_id", "tvrage_id" };
+			ServiceClient.jsonSettings.Converters.Add(new Internal.ResourceCreationConverter());
+			ServiceClient.externalSources = new string[] { "imdb_id", "freebase_id", "freebase_mid", "tvdb_id", "tvrage_id" };
 		}
 
 		#endregion
@@ -161,37 +162,37 @@ namespace System.Net.TMDb
 		/// </remarks>
 		public async Task<Resource> FindAsync(string id, string externalSource, CancellationToken cancellationToken)
 		{
-            if (String.IsNullOrWhiteSpace(id))
-                throw new ArgumentNullException("id");
+			if (String.IsNullOrWhiteSpace(id))
+				throw new ArgumentNullException("id");
 
-            if (String.IsNullOrWhiteSpace(externalSource) || !ServiceClient.externalSources.Contains(externalSource))
+			if (String.IsNullOrWhiteSpace(externalSource) || !ServiceClient.externalSources.Contains(externalSource))
 				throw new ArgumentNullException("externalSource", "A supported external source must be specified.");
 
 			string cmd = String.Format("find/{0}", id);
 			var parameters = new Dictionary<string, object> { { "external_source", externalSource } };
 			var response = await GetAsync(cmd, parameters, cancellationToken).ConfigureAwait(false);
-            var result = await Deserialize<ResourceFindResult>(response);
+			var result = await Deserialize<ResourceFindResult>(response);
 
 			return ((IEnumerable<Resource>)result.Movies).Concat(result.People)
 				.Concat(result.Shows).Concat(result.Seasons).Concat(result.Episodes)
-                .FirstOrDefault();
+				.FirstOrDefault();
 		}
 
-        /// <summary>
-        /// Search the movie, tv show and person collections with a single query. Each mapped result is the same response you would get from each independent search.
-        /// </summary>
-        public async Task<Resources> SearchAsync(string query, string language, bool includeAdult, int page, CancellationToken cancellationToken)
-        {
-            var parameters = new Dictionary<string, object>
+		/// <summary>
+		/// Search the movie, tv show and person collections with a single query. Each mapped result is the same response you would get from each independent search.
+		/// </summary>
+		public async Task<Resources> SearchAsync(string query, string language, bool includeAdult, int page, CancellationToken cancellationToken)
+		{
+			var parameters = new Dictionary<string, object>
 			{
 				{ "query", query },
 				{ "page", page },
 				{ "include_adult", includeAdult },
 				{ "language", language }
 			};
-            var response = await GetAsync("search/multi", parameters, cancellationToken).ConfigureAwait(false);
-            return await Deserialize<Resources>(response);
-        }
+			var response = await GetAsync("search/multi", parameters, cancellationToken).ConfigureAwait(false);
+			return await Deserialize<Resources>(response);
+		}
 
 		#endregion
 
@@ -245,12 +246,13 @@ namespace System.Net.TMDb
 					task.Result.Content.ReadAsStringAsync().ContinueWith(t2 =>
 					{
 						dynamic status = JsonConvert.DeserializeObject(t2.Result);
-                        string message = (status.errors != null) ? String.Join(Environment.NewLine, status.errors) : status.status_message;
-                        tcs.TrySetException(new ServiceRequestException((int)task.Result.StatusCode, message));
+						int code = (status.status_code != null) ? status.status_code : 0;
+						string message = (status.errors != null) ? String.Join(Environment.NewLine, status.errors) : status.status_message;
+						tcs.TrySetException(new ServiceRequestException((int)task.Result.StatusCode, code, message));
 					});
 				}
 				else tcs.TrySetException(new ServiceRequestException(
-					(int)task.Result.StatusCode, task.Result.ReasonPhrase));
+					(int)task.Result.StatusCode, 0, task.Result.ReasonPhrase));
 			}
 			else if (task.IsFaulted) tcs.TrySetException(task.Exception);
 			else if (task.IsCompleted) tcs.TrySetResult(task.Result);
@@ -266,8 +268,8 @@ namespace System.Net.TMDb
 				var queryParams = parameters.Where(s => s.Value != null)
 					.Select(s => String.Concat(s.Key, "=", ConvertParameterValue(s.Value)));
 
-                if (queryParams.Count() > 0)
-                    sb.Append(queryParams.Aggregate((s, n) => String.Concat(s, "&", n)));
+				if (queryParams.Count() > 0)
+					sb.Append(queryParams.Aggregate((s, n) => String.Concat(s, "&", n)));
 			}
 #if DEBUG
 			System.Diagnostics.Debug.WriteLine(sb);
@@ -308,7 +310,7 @@ namespace System.Net.TMDb
 				this.client = client;
 			}
 
-            public async Task<Movies> SearchAsync(string query, string language, bool includeAdult, int? year, bool autocomplete, int page, CancellationToken cancellationToken)
+			public async Task<Movies> SearchAsync(string query, string language, bool includeAdult, int? year, bool autocomplete, int page, CancellationToken cancellationToken)
 			{
 				var parameters = new Dictionary<string, object>
 				{
@@ -316,7 +318,7 @@ namespace System.Net.TMDb
 					{ "page", page },
 					{ "include_adult", includeAdult },
 					{ "language", language },
-                    { "year", year }
+					{ "year", year }
 				};
 				if (autocomplete) parameters.Add("search_type", "ngram");
 				var response = await client.GetAsync("search/movie", parameters, cancellationToken).ConfigureAwait(false);
@@ -1102,14 +1104,32 @@ namespace System.Net.TMDb
 		#endregion
 	}
 
-	public sealed class ServiceRequestException : HttpRequestException
+	public class ServiceRequestException : HttpRequestException
 	{
-		internal ServiceRequestException(int statusCode, string message) : base(message)
+		internal ServiceRequestException(int statusCode, int serviceCode, string message) : base(message)
 		{
+			this.ServiceCode = serviceCode;
 			this.StatusCode = statusCode;
 		}
 
+#if !PORTABLE
+		protected ServiceRequestException(SerializationInfo info, StreamingContext context)
+		{
+			info.GetInt32("ServiceCode");
+			info.GetInt32("StatusCode");
+		}
+#endif
+		public int ServiceCode { get; private set; }
+
 		public int StatusCode { get; private set; }
+
+#if !PORTABLE
+		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+		{
+			info.AddValue("ServiceCode", ServiceCode);
+			info.AddValue("StatusCode", StatusCode);
+		}
+#endif
 	}
 }
 
