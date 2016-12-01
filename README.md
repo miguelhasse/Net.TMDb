@@ -1,4 +1,5 @@
-## The Movie Database Client for .NET ##
+## The Movie Database Client for .NET ## [![NuGet Status](http://img.shields.io/nuget/v/hasseware.themoviedb.svg?style=flat)](https://www.nuget.org/packages/hasseware.themoviedb/)
+
 
 Implements asynchronous operations and includes support for portable class libraries.
 
