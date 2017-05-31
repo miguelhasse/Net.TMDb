@@ -58,6 +58,9 @@
     <Compile Include="..\Net.TMDb\Internal\ResourceCreationConverter.cs">
       <Link>Internal\ResourceCreationConverter.cs</Link>
     </Compile>
+    <Compile Include="..\Net.TMDb\Internal\ServiceMessageHandler.cs">
+      <Link>Internal\ServiceMessageHandler.cs</Link>
+    </Compile>
     <Compile Include="..\Net.TMDb\ServiceClient.cs">
       <Link>ServiceClient.cs</Link>
     </Compile>
