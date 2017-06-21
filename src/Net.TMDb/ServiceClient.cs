@@ -19,7 +19,7 @@ namespace System.Net.TMDb
     /// </summary>
     public sealed class ServiceClient : IDisposable
 	{
-		private readonly string baseUrl;
+		private readonly string apiKey;
 		private readonly HttpClient client;
 		private bool disposed = false;
 
@@ -30,7 +30,7 @@ namespace System.Net.TMDb
 
 		public ServiceClient(string apiKey)
 		{
-			this.baseUrl = String.Concat(@"http://api.themoviedb.org/3/{0}?api_key=", apiKey, "&");
+            this.apiKey = apiKey;
 			this.client = new HttpClient(new Internal.ServiceMessageHandler(
 				new HttpClientHandler
 				{
@@ -42,8 +42,9 @@ namespace System.Net.TMDb
 				}));
 			this.client.DefaultRequestHeaders.Accept.Add(
 				new MediaTypeWithQualityHeaderValue("application/json"));
+            this.client.BaseAddress = new Uri("http://api.themoviedb.org/3/");
 
-			this.Movies = new MovieContext(this);
+            this.Movies = new MovieContext(this);
 			this.Shows = new ShowsContext(this);
 			this.Companies = new CompanyContext(this);
 			this.Genres = new GenreContext(this);
@@ -109,7 +110,7 @@ namespace System.Net.TMDb
 		/// <summary>
 		/// This method is used to generate a valid request token and authenticate user with a TMDb username and password.
 		/// </summary>
-		public Task<string> LoginAsync(string username, string password, CancellationToken cancellationToken)
+		public Task<string> LoginAsync(string username, string password, CancellationToken cancellationToken = default(CancellationToken))
 		{
             return GetTokenAsync(cancellationToken)
                 .ContinueWith(t => ValidateAsync(t.Result, username, password, cancellationToken), TaskContinuationOptions.OnlyOnRanToCompletion)
@@ -120,7 +121,7 @@ namespace System.Net.TMDb
 		/// This method is used to generate a session id for user based authentication, or a guest session if a null token is used.
 		/// A session id is required in order to use any of the write methods.
 		/// </summary>
-		public Task<string> GetSessionAsync(string token, CancellationToken cancellationToken)
+		public Task<string> GetSessionAsync(string token, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			return (token == null ? OpenGuestSessionAsync(cancellationToken) : OpenSessionAsync(token, cancellationToken));
 		}
@@ -156,25 +157,35 @@ namespace System.Net.TMDb
                 .ContinueWith(t => t.Result.Guest, TaskContinuationOptions.OnlyOnRanToCompletion);
         }
 
-		#endregion
+        #endregion
 
-		#region General Resource Search
+        #region Image Storage Methods
 
-		/// <summary>
-		/// The find method makes it easy to search for objects in our database by an external id. For instance, an IMDB ID.
-		/// This will search all objects (movies, TV shows and people) and return the results in a single response.
-		/// </summary>
-		/// <remarks>
-		/// The supported external sources for each object are as follows:
-		/// <list type="bullet">
-		/// <item><description>Movies: imdb_id</description></item>
-		/// <item><description>People: imdb_id, freebase_mid, freebase_id, tvrage_id</description></item>
-		/// <item><description>TV Series: imdb_id, freebase_mid, freebase_id, tvdb_id, tvrage_id</description></item>
-		/// <item><description>TV Seasons: freebase_mid, freebase_id, tvdb_id, tvrage_id</description></item>
-		/// <item><description>TV Episodes: imdb_id, freebase_mid, freebase_id, tvdb_id, tvrage_id</description></item>
-		/// </list>
-		/// </remarks>
-		public Task<Resource> FindAsync(string id, string externalSource, CancellationToken cancellationToken)
+        public Task<IImageStorage> GetImageStorageAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return Settings.GetConfigurationAsync(cancellationToken)
+                .ContinueWith(t => (IImageStorage)new StorageClient(t.Result), TaskContinuationOptions.OnlyOnRanToCompletion);
+        }
+
+        #endregion
+
+        #region General Resource Search
+
+        /// <summary>
+        /// The find method makes it easy to search for objects in our database by an external id. For instance, an IMDB ID.
+        /// This will search all objects (movies, TV shows and people) and return the results in a single response.
+        /// </summary>
+        /// <remarks>
+        /// The supported external sources for each object are as follows:
+        /// <list type="bullet">
+        /// <item><description>Movies: imdb_id</description></item>
+        /// <item><description>People: imdb_id, freebase_mid, freebase_id, tvrage_id</description></item>
+        /// <item><description>TV Series: imdb_id, freebase_mid, freebase_id, tvdb_id, tvrage_id</description></item>
+        /// <item><description>TV Seasons: freebase_mid, freebase_id, tvdb_id, tvrage_id</description></item>
+        /// <item><description>TV Episodes: imdb_id, freebase_mid, freebase_id, tvdb_id, tvrage_id</description></item>
+        /// </list>
+        /// </remarks>
+        public Task<Resource> FindAsync(string id, string externalSource, CancellationToken cancellationToken)
 		{
 			if (String.IsNullOrWhiteSpace(id))
 				throw new ArgumentNullException("id");
@@ -182,10 +193,9 @@ namespace System.Net.TMDb
 			if (String.IsNullOrWhiteSpace(externalSource) || !ServiceClient.externalSources.Contains(externalSource))
 				throw new ArgumentNullException("externalSource", "A supported external source must be specified.");
 
-			string cmd = String.Format("find/{0}", id);
 			var parameters = new Dictionary<string, object> { { "external_source", externalSource } };
 
-			return GetAsync<ResourceFindResult>(cmd, parameters, cancellationToken)
+			return GetAsync<ResourceFindResult>($"find/{id}", parameters, cancellationToken)
                 .ContinueWith(t => ((IEnumerable<Resource>)t.Result.Movies).Concat(t.Result.People)
                     .Concat(t.Result.Shows).Concat(t.Result.Seasons).Concat(t.Result.Episodes)
                     .FirstOrDefault(), TaskContinuationOptions.OnlyOnRanToCompletion);
@@ -257,23 +267,19 @@ namespace System.Net.TMDb
                 }, TaskContinuationOptions.OnlyOnRanToCompletion);
 		}
 
-		private Uri CreateRequestUri(string cmd, IDictionary<string, object> parameters)
+		private string CreateRequestUri(string cmd, IDictionary<string, object> parameters)
 		{
-			var sb = new System.Text.StringBuilder();
-			sb.AppendFormat(baseUrl, cmd);
+			var sb = new System.Text.StringBuilder($"{cmd}?api_key={apiKey}&");
 
-			if (parameters != null)
+            if (parameters != null)
 			{
-				var queryParams = parameters.Where(s => s.Value != null)
-					.Select(s => String.Concat(s.Key, "=", ConvertParameterValue(s.Value)));
-
-				if (queryParams.Count() > 0)
-					sb.Append(queryParams.Aggregate((s, n) => String.Concat(s, "&", n)));
+                sb.Append(String.Join("&", parameters.Where(s => s.Value != null)
+                    .Select(s => String.Concat(s.Key, "=", ConvertParameterValue(s.Value)))));
 			}
 #if DEBUG
 			System.Diagnostics.Debug.WriteLine(sb);
 #endif
-			return new Uri(sb.ToString(), UriKind.Absolute);
+			return sb.ToString();
 		}
 
 		private static string ConvertParameterValue(object value)
@@ -344,67 +350,53 @@ namespace System.Net.TMDb
 
 			public Task<Movie> GetAsync(int id, string language, bool appendAll, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("movie/{0}", id);
 				var parameters = new Dictionary<string, object> { { "language", language } };
 				if (appendAll) parameters.Add("append_to_response", "alternative_titles,images,credits,keywords,releases,videos,translations,reviews,external_ids");
 
-				return client.GetAsync<Movie>(cmd, parameters, cancellationToken);
+				return client.GetAsync<Movie>($"movie/{id}", parameters, cancellationToken);
 			}
 
 			public Task<Images> GetImagesAsync(int id, string language, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("movie/{0}/images", id);
 				var parameters = new Dictionary<string, object> { { "language", language } };
-
-				return client.GetAsync<Images>(cmd, parameters, cancellationToken);
+				return client.GetAsync<Images>($"movie/{id}/images", parameters, cancellationToken);
 			}
 
 			public Task<IEnumerable<MediaCredit>> GetCreditsAsync(int id, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("movie/{0}/credits", id);
-                return client.GetAsync<MediaCredits>(cmd, null, cancellationToken)
+                return client.GetAsync<MediaCredits>($"movie/{id}/credits", null, cancellationToken)
                     .ContinueWith(t => ((IEnumerable<MediaCredit>)t.Result.Cast).Concat(t.Result.Crew), TaskContinuationOptions.OnlyOnRanToCompletion);
 			}
 
 			public Task<IEnumerable<Video>> GetVideosAsync(int id, string language, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("movie/{0}/videos", id);
 				var parameters = new Dictionary<string, object> { { "language", language } };
-
-                return client.GetAsync<Videos>(cmd, parameters, cancellationToken)
+                return client.GetAsync<Videos>($"movie/{id}/videos", parameters, cancellationToken)
                     .ContinueWith(t => t.Result.Results, TaskContinuationOptions.OnlyOnRanToCompletion);
 			}
 
 			public Task<Reviews> GetReviewsAsync(int id, string language, int page, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("movie/{0}/reviews", id);
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
-
-				return client.GetAsync<Reviews>(cmd, parameters, cancellationToken);
+				return client.GetAsync<Reviews>($"movie/{id}/reviews", parameters, cancellationToken);
 			}
 
 			public Task<Lists> GetListsAsync(int id, string language, int page, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("movie/{0}/lists", id);
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
-
-				return client.GetAsync<Lists>(cmd, parameters, cancellationToken);
+				return client.GetAsync<Lists>($"movie/{id}/lists", parameters, cancellationToken);
 			}
 
 			public Task<Movies> GetSimilarAsync(int id, string language, int page, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("movie/{0}/similar_movies", id);
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
-
-				return client.GetAsync<Movies>(cmd, parameters, cancellationToken);
+				return client.GetAsync<Movies>($"movie/{id}/similar_movies", parameters, cancellationToken);
 			}
 
 			public Task<Movies> GetGuestRatedAsync(string session, string language, int page, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("guest_session/{0}/rated_movies", session);
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
-
-				return client.GetAsync<Movies>(cmd, parameters, cancellationToken);
+				return client.GetAsync<Movies>($"guest_session/{session}/rated_movies", parameters, cancellationToken);
             }
 
             public Task<Movies> GetPopularAsync(string language, int page, CancellationToken cancellationToken)
@@ -433,31 +425,26 @@ namespace System.Net.TMDb
 
             public Task<IEnumerable<AlternativeTitle>> GetAlternativeTitlesAsync(int id, string language, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("movie/{0}/alternative_titles", id);
 				var parameters = new Dictionary<string, object> { { "country", language } };
-
-				return client.GetAsync<AlternativeTitles>(cmd, parameters, cancellationToken)
+				return client.GetAsync<AlternativeTitles>($"movie/{id}/alternative_titles", parameters, cancellationToken)
                     .ContinueWith(t => t.Result.Results, TaskContinuationOptions.OnlyOnRanToCompletion);
             }
 
 			public Task<IEnumerable<Keyword>> GetKeywordsAsync(int id, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("movie/{0}/keywords", id);
-				return client.GetAsync<Keywords>(cmd, null, cancellationToken)
+				return client.GetAsync<Keywords>($"movie/{id}/keywords", null, cancellationToken)
                     .ContinueWith(t => t.Result.Results, TaskContinuationOptions.OnlyOnRanToCompletion);
 			}
 
 			public Task<IEnumerable<Release>> GetReleasesAsync(int id, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("movie/{0}/releases", id);
-				return client.GetAsync<Releases>(cmd, null, cancellationToken)
+				return client.GetAsync<Releases>($"movie/{id}/releases", null, cancellationToken)
                     .ContinueWith(t => t.Result.Results, TaskContinuationOptions.OnlyOnRanToCompletion);
             }
 
 			public Task<IEnumerable<Translation>> GetTranslationsAsync(int id, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("movie/{0}/translations", id);
-				return client.GetAsync<Translations>(cmd, null, cancellationToken)
+				return client.GetAsync<Translations>($"movie/{id}/translations", null, cancellationToken)
                     .ContinueWith(t => t.Result.Results, TaskContinuationOptions.OnlyOnRanToCompletion);
             }
 
@@ -469,55 +456,46 @@ namespace System.Net.TMDb
 
 			public Task<Movies> GetAccountRatedAsync(string session, string language, int page, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("account/{0}/rated/movies", session);
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
-
-                return client.GetAsync<Movies>(cmd, parameters, cancellationToken);
+                return client.GetAsync<Movies>($"account/{session}/rated/movies", parameters, cancellationToken);
 			}
 
 			public Task<Movies> GetFavoritedAsync(string session, string language, int page, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("account/{0}/favorite/movies ", session);
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
-
-                return client.GetAsync<Movies>(cmd, parameters, cancellationToken);
+                return client.GetAsync<Movies>($"account/{session}/favorite/movies", parameters, cancellationToken);
             }
 
             public Task<Movies> GetWatchlistAsync(string session, string language, int page, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("account/{0}/watchlist/movies", session);
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
-
-                return client.GetAsync<Movies>(cmd, parameters, cancellationToken);
+                return client.GetAsync<Movies>($"account/{session}/watchlist/movies", parameters, cancellationToken);
             }
 
             public Task<bool> SetRatingAsync(string session, int id, decimal value, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("movie/{0}/rating", id);
 				var parameters = new Dictionary<string, object> { { "session_id", session } };
 				string content = String.Format("{{\"value\":\"{0}\"}}", value);
 
-                return client.SendDynamicAsync(cmd, parameters, new StringContent(content, null, "application/json"), HttpMethod.Post, cancellationToken)
+                return client.SendDynamicAsync($"movie/{id}/rating", parameters, new StringContent(content, null, "application/json"), HttpMethod.Post, cancellationToken)
                     .ContinueWith(t => (bool)(t.Result.Value<int>("status_code") == 12), TaskContinuationOptions.OnlyOnRanToCompletion);
 			}
 
 			public Task<bool> SetFavoriteAsync(string session, int id, bool value, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("account/{0}/favorite", id);
 				var parameters = new Dictionary<string, object> { { "session_id", session } };
 				string content = String.Format("{{\"media_type\":\"movie\",\"media_id\":\"{0}\",\"favorite\":\"{1}\"}}", id, value);
 
-                return client.SendDynamicAsync(cmd, parameters, new StringContent(content, null, "application/json"), HttpMethod.Post, cancellationToken)
+                return client.SendDynamicAsync($"account/{id}/favorite", parameters, new StringContent(content, null, "application/json"), HttpMethod.Post, cancellationToken)
                     .ContinueWith(t => (bool)(t.Result.Value<int>("status_code") == 12), TaskContinuationOptions.OnlyOnRanToCompletion);
             }
 
 			public Task<bool> SetWatchlistAsync(string session, int id, bool value, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("account/{0}/watchlist", id);
 				var parameters = new Dictionary<string, object> { { "session_id", session } };
 				string content = String.Format("{{\"media_type\":\"movie\",\"media_id\":\"{0}\",\"watchlist\":\"{1}\"}}", id, value);
 
-                return client.SendDynamicAsync(cmd, parameters, new StringContent(content, null, "application/json"), HttpMethod.Post, cancellationToken)
+                return client.SendDynamicAsync($"account/{id}/watchlist", parameters, new StringContent(content, null, "application/json"), HttpMethod.Post, cancellationToken)
                     .ContinueWith(t => (bool)(t.Result.Value<int>("status_code") == 12), TaskContinuationOptions.OnlyOnRanToCompletion);
             }
 		}
@@ -564,11 +542,10 @@ namespace System.Net.TMDb
 
 			public Task<Show> GetAsync(int id, string language, bool appendAll, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("tv/{0}", id);
 				var parameters = new Dictionary<string, object> { { "language", language } };
 				if (appendAll) parameters.Add("append_to_response", "images,credits,keywords,videos,translations,external_ids");
 
-                return client.GetAsync<Show>(cmd, parameters, cancellationToken);
+                return client.GetAsync<Show>($"tv/{id}", parameters, cancellationToken);
 			}
 
 			public Task<Show> GetLatestAsync(CancellationToken cancellationToken)
@@ -578,20 +555,18 @@ namespace System.Net.TMDb
 
             public Task<Season> GetSeasonAsync(int id, int season, string language, bool appendAll, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("tv/{0}/season/{1}", id, season);
 				var parameters = new Dictionary<string, object> { { "language", language } };
 				if (appendAll) parameters.Add("append_to_response", "images,credits,videos,external_ids");
 
-                return client.GetAsync<Season>(cmd, parameters, cancellationToken);
+                return client.GetAsync<Season>($"tv/{id}/season/{season}", parameters, cancellationToken);
 			}
 
 			public Task<Episode> GetEpisodeAsync(int id, int season, int episode, string language, bool appendAll, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("tv/{0}/season/{1}/episode/{2}", id, season, episode);
 				var parameters = new Dictionary<string, object> { { "language", language } };
 				if (appendAll) parameters.Add("append_to_response", "images,credits,videos,external_ids");
 
-                return client.GetAsync<Episode>(cmd, parameters, cancellationToken);
+                return client.GetAsync<Episode>($"tv/{id}/season/{season}/episode/{episode}", parameters, cancellationToken);
 			}
 
 			public Task<ExternalIds> GetIdsAsync(int id, int? season, int? episode, CancellationToken cancellationToken)
@@ -611,8 +586,7 @@ namespace System.Net.TMDb
 
 			public Task<IEnumerable<MediaCredit>> GetCreditsAsync(int id, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("tv/{0}/credits", id);
-                return client.GetAsync<MediaCredits>(cmd, null, cancellationToken)
+                return client.GetAsync<MediaCredits>($"tv/{id}/credits", null, cancellationToken)
                     .ContinueWith(t => ((IEnumerable<MediaCredit>)t.Result.Cast).Concat(t.Result.Crew), TaskContinuationOptions.OnlyOnRanToCompletion);
 			}
 
@@ -634,10 +608,8 @@ namespace System.Net.TMDb
 
 			public Task<Shows> GetSimilarAsync(int id, string language, int page, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("tv/{0}/similar", id);
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
-
-                return client.GetAsync<Shows>(cmd, parameters, cancellationToken);
+                return client.GetAsync<Shows>($"tv/{id}/similar", parameters, cancellationToken);
 			}
 
 			public Task<IEnumerable<Video>> GetVideosAsync(int id, int? season, int? episode, string language, CancellationToken cancellationToken)
@@ -659,8 +631,7 @@ namespace System.Net.TMDb
 
 			public Task<IEnumerable<Translation>> GetTranslationsAsync(int id, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("tv/{0}/translations", id);
-				return client.GetAsync<Translations>(cmd, null, cancellationToken)
+				return client.GetAsync<Translations>($"tv/{id}/translations", null, cancellationToken)
                     .ContinueWith(t => t.Result.Results, TaskContinuationOptions.OnlyOnRanToCompletion);
             }
 
@@ -696,72 +667,61 @@ namespace System.Net.TMDb
 
 			public Task<string> GetNetworkAsync(int id, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("network/{0}", id);
-                return client.GetDynamicAsync(cmd, null, cancellationToken)
+                return client.GetDynamicAsync($"network/{id}", null, cancellationToken)
                     .ContinueWith(t => (string)t.Result.Value<string>("name"), TaskContinuationOptions.OnlyOnRanToCompletion);
 			}
 			
 			public Task<Shows> GetAccountRatedAsync(string session, string language, int page, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("account/{0}/rated/tv", session);
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
-
-                return client.GetAsync<Shows>(cmd, parameters, cancellationToken);
+                return client.GetAsync<Shows>($"account/{session}/rated/tv", parameters, cancellationToken);
             }
 
             public Task<Shows> GetFavoritedAsync(string session, string language, int page, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("account/{0}/favorite/tv ", session);
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
-
-                return client.GetAsync<Shows>(cmd, parameters, cancellationToken);
+                return client.GetAsync<Shows>($"account/{session}/favorite/tv", parameters, cancellationToken);
             }
 
             public Task<Shows> GetWatchlistAsync(string session, string language, int page, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("account/{0}/watchlist/tv", session);
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
-
-                return client.GetAsync<Shows>(cmd, parameters, cancellationToken);
+                return client.GetAsync<Shows>($"account/{session}/watchlist/tv", parameters, cancellationToken);
             }
 
             public Task<bool> SetRatingAsync(string session, int id, decimal value, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("tv/{0}/rating", id);
 				var parameters = new Dictionary<string, object> { { "session_id", session } };
 				string content = String.Format("{{\"value\":\"{0}\"}}", value);
 
-                return client.SendDynamicAsync(cmd, parameters, new StringContent(content, null, "application/json"), HttpMethod.Post, cancellationToken)
+                return client.SendDynamicAsync($"tv/{id}/rating", parameters, new StringContent(content, null, "application/json"), HttpMethod.Post, cancellationToken)
                     .ContinueWith(t => (bool)(t.Result.Value<int>("status_code") == 1), TaskContinuationOptions.OnlyOnRanToCompletion);
 			}
 
 			public Task<bool> SetRatingAsync(string session, int id, int season, int episode, decimal value, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("tv/{0}/season/{1}/episode/{2}/rating", id, season, episode);
 				var parameters = new Dictionary<string, object> { { "session_id", session } };
 				string content = String.Format("{{\"value\":\"{0}\"}}", value);
 
-				return client.SendDynamicAsync(cmd, parameters, new StringContent(content, null, "application/json"), HttpMethod.Post, cancellationToken)
+				return client.SendDynamicAsync($"tv/{id}/season/{season}/episode/{episode}/rating", parameters, new StringContent(content, null, "application/json"), HttpMethod.Post, cancellationToken)
                     .ContinueWith(t => (bool)(t.Result.Value<int>("status_code") == 1), TaskContinuationOptions.OnlyOnRanToCompletion);
 			}
 
 			public Task<bool> SetFavoriteAsync(string session, int id, bool value, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("account/{0}/favorite", id);
 				var parameters = new Dictionary<string, object> { { "session_id", session } };
 				string content = String.Format("{{\"media_type\":\"tv\",\"media_id\":\"{0}\",\"favorite\":\"{1}\"}}", id, value);
 
-                return client.SendDynamicAsync(cmd, parameters, new StringContent(content, null, "application/json"), HttpMethod.Post, cancellationToken)
+                return client.SendDynamicAsync($"account/{id}/favorite", parameters, new StringContent(content, null, "application/json"), HttpMethod.Post, cancellationToken)
                     .ContinueWith(t => (bool)(t.Result.Value<int>("status_code") == 12), TaskContinuationOptions.OnlyOnRanToCompletion);
 			}
 
 			public Task<bool> SetWatchlistAsync(string session, int id, bool value, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("account/{0}/watchlist", id);
 				var parameters = new Dictionary<string, object> { { "session_id", session } };
 				string content = String.Format("{{\"media_type\":\"tv\",\"media_id\":\"{0}\",\"watchlist\":\"{1}\"}}", id, value);
 
-                return client.SendDynamicAsync(cmd, parameters, new StringContent(content, null, "application/json"), HttpMethod.Post, cancellationToken)
+                return client.SendDynamicAsync($"account/{id}/watchlist", parameters, new StringContent(content, null, "application/json"), HttpMethod.Post, cancellationToken)
                     .ContinueWith(t => (bool)(t.Result.Value<int>("status_code") == 12), TaskContinuationOptions.OnlyOnRanToCompletion);
             }
 		}
@@ -777,19 +737,16 @@ namespace System.Net.TMDb
 
 			public Task<Collection> GetAsync(int id, string language, bool appendAll, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("collection/{0}", id);
 				var parameters = new Dictionary<string, object> { { "language", language } };
 				if (appendAll) parameters.Add("append_to_response", "images");
 
-                return client.GetAsync<Collection>(cmd, parameters, cancellationToken);
+                return client.GetAsync<Collection>($"collection/{id}", parameters, cancellationToken);
 			}
 
 			public Task<Images> GetImagesAsync(int id, string language, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("collection/{0}/images", id);
 				var parameters = new Dictionary<string, object> { { "language", language } };
-
-                return client.GetAsync<Images>(cmd, parameters, cancellationToken);
+                return client.GetAsync<Images>($"collection/{id}/images", parameters, cancellationToken);
 			}
 
 			public Task<Collections> SearchAsync(string query, string language, int page, CancellationToken cancellationToken)
@@ -810,16 +767,13 @@ namespace System.Net.TMDb
 
 			public Task<Company> GetAsync(int id, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("company/{0}", id);
-                return client.GetAsync<Company>(cmd, null, cancellationToken);
+                return client.GetAsync<Company>($"company/{id}", null, cancellationToken);
 			}
 
 			public Task<Movies> GetMoviesAsync(int id, string language, int page, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("company/{0}/movies", id);
 				var parameters = new Dictionary<string, object> { { "page", page }, { "language", language } };
-
-                return client.GetAsync<Movies>(cmd, parameters, cancellationToken);
+                return client.GetAsync<Movies>($"company/{id}/movies", parameters, cancellationToken);
 			}
 
 			public Task<Companies> SearchAsync(string query, int page, CancellationToken cancellationToken)
@@ -838,26 +792,26 @@ namespace System.Net.TMDb
 				this.client = client;
 			}
 
-			public Task<IEnumerable<Genre>> GetAsync(DataInfoType type, CancellationToken cancellationToken)
+			public Task<IEnumerable<Genre>> GetAsync(DataInfoType type, string language, CancellationToken cancellationToken)
 			{
 				var sb = new System.Text.StringBuilder("genre");
 
-				switch (type)
+                switch (type)
 				{
 					case DataInfoType.Movie: sb.Append("/movie/list"); break;
 					case DataInfoType.Television: sb.Append("/tv/list"); break;
 					case DataInfoType.Combined: sb.Append("/list"); break;
 				}
-                return client.GetAsync<Genres>(sb.ToString(), null, cancellationToken)
+                var parameters = new Dictionary<string, object> { { "language", language } };
+
+                return client.GetAsync<Genres>(sb.ToString(), parameters, cancellationToken)
                     .ContinueWith(t => t.Result.Results, TaskContinuationOptions.OnlyOnRanToCompletion);
 			}
 
 			public Task<Movies> GetMoviesAsync(int id, string language, bool includeAdult, int page, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("genre/{0}/movies", id);
 				var parameters = new Dictionary<string, object> { { "page", page }, { "include_adult", includeAdult }, { "language", language } };
-
-                return client.GetAsync<Movies>(cmd, parameters, cancellationToken);
+                return client.GetAsync<Movies>($"genre/{id}/movies", parameters, cancellationToken);
 			}
 		}
 
@@ -872,11 +826,10 @@ namespace System.Net.TMDb
 
 			public Task<Person> GetAsync(int id, bool appendAll, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("person/{0}", id);
 				var parameters = new Dictionary<string, object>();
 				if (appendAll) parameters.Add("append_to_response", "images,external_ids");
 
-                return client.GetAsync<Person>(cmd, parameters, cancellationToken);
+                return client.GetAsync<Person>($"person/{id}", parameters, cancellationToken);
 			}
 
 			public Task<IEnumerable<PersonCredit>> GetCreditsAsync(int id, string language, DataInfoType type, CancellationToken cancellationToken)
@@ -898,15 +851,13 @@ namespace System.Net.TMDb
 
 			public Task<IEnumerable<Image>> GetImagesAsync(int id, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("person/{0}/images", id);
-                return client.GetAsync<PersonImages>(cmd, null, cancellationToken)
+                return client.GetAsync<PersonImages>($"person/{id}/images", null, cancellationToken)
                     .ContinueWith(t => t.Result.Results, TaskContinuationOptions.OnlyOnRanToCompletion);
             }
 
 			public Task<ExternalIds> GetIdsAsync(int id, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("person/{0}/external_ids", id);
-                return client.GetAsync<ExternalIds>(cmd, null, cancellationToken);
+                return client.GetAsync<ExternalIds>($"person/{id}/external_ids", null, cancellationToken);
 			}
 
 			public Task<People> SearchAsync(string query, bool includeAdult, bool autocomplete, int page, CancellationToken cancellationToken)
@@ -935,15 +886,13 @@ namespace System.Net.TMDb
 
 			public Task<List> GetAsync(string id, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("list/{0}", id);
-                return client.GetAsync<List>(cmd, null, cancellationToken);
+                return client.GetAsync<List>($"list/{id}", null, cancellationToken);
 			}
 
 			public Task<bool> ContainsAsync(string id, int movieId, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("list/{0}/item_status", id);
 				var parameters = new Dictionary<string, object> { { "movie_id", movieId } };
-                return client.GetDynamicAsync(cmd, parameters, cancellationToken)
+                return client.GetDynamicAsync($"list/{id}/item_status", parameters, cancellationToken)
                     .ContinueWith(t => (bool)(t.Result.Value<bool>("item_present") == true), TaskContinuationOptions.OnlyOnRanToCompletion);
             }
 
@@ -959,37 +908,33 @@ namespace System.Net.TMDb
 
 			public Task<bool> InsertAsync(string session, string id, string mediaId, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("list/{0}/add_item", id);
 				var parameters = new Dictionary<string, object> { { "session_id", session } };
 				string content = String.Format("{{\"media_id\":\"{0}\"}}", mediaId);
 
-                return client.SendDynamicAsync(cmd, parameters, new StringContent(content, null, "application/json"), HttpMethod.Post, cancellationToken)
+                return client.SendDynamicAsync($"list/{id}/add_item", parameters, new StringContent(content, null, "application/json"), HttpMethod.Post, cancellationToken)
                     .ContinueWith(t => (bool)(t.Result.Value<int>("status_code") == 12), TaskContinuationOptions.OnlyOnRanToCompletion);
 			}
 
 			public Task<bool> RemoveAsync(string session, string id, string mediaId, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("list/{0}/remove_item", id);
 				var parameters = new Dictionary<string, object> { { "session_id", session } };
 				string content = String.Format("{{\"media_id\":\"{0}\"}}", mediaId);
 
-                return client.SendDynamicAsync(cmd, parameters, new StringContent(content, null, "application/json"), HttpMethod.Post, cancellationToken)
+                return client.SendDynamicAsync($"list/{id}/remove_item", parameters, new StringContent(content, null, "application/json"), HttpMethod.Post, cancellationToken)
                     .ContinueWith(t => (bool)(t.Result.Value<int>("status_code") == 12), TaskContinuationOptions.OnlyOnRanToCompletion);
             }
 
             public Task<bool> ClearAsync(string session, string id, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("list/{0}/clear", id);
 				var parameters = new Dictionary<string, object> { { "session_id", session }, { "confirm", "true" } };
-                return client.SendDynamicAsync(cmd, parameters, null, HttpMethod.Post, cancellationToken)
+                return client.SendDynamicAsync($"list/{id}/clear", parameters, null, HttpMethod.Post, cancellationToken)
                     .ContinueWith(t => (bool)(t.Result.Value<int>("status_code") == 12), TaskContinuationOptions.OnlyOnRanToCompletion);
             }
 
 			public Task<bool> DeleteAsync(string session, string id, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("list/{0}", id);
 				var parameters = new Dictionary<string, object> { { "session_id", session } };
-                return client.SendDynamicAsync(cmd, parameters, null, HttpMethod.Delete, cancellationToken)
+                return client.SendDynamicAsync($"list/{id}", parameters, null, HttpMethod.Delete, cancellationToken)
     				.ContinueWith(t => (bool)(t.Result.Value<int>("status_code") == 12), TaskContinuationOptions.OnlyOnRanToCompletion);
             }
 		}
@@ -1005,8 +950,7 @@ namespace System.Net.TMDb
 
 			public Task<Review> GetAsync(string id, CancellationToken cancellationToken)
 			{
-				string cmd = String.Format("review/{0}", id);
-                return client.GetAsync<Review>(cmd, null, cancellationToken);
+                return client.GetAsync<Review>($"review/{id}", null, cancellationToken);
 			}
 
 		}
